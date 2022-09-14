@@ -1,18 +1,18 @@
 require(data.table)
 require(tidyverse)
 
-reload_data <- F
+reload_data <- T
 
 #list of variables
 varlist <- c("Emissions|CO2", "Consumption", "Population", "Land Cover|Forest")
 
 
 
-if(!file.exists("ar6_data.Rdata") & !reload_data){
+if(!file.exists("ar6_data.Rdata") | reload_data){
   #AR6 data
   require(reticulate)
-  pythondir <- "C:\\Users\\Emmerling\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
-  use_python(python = pythondir, required = TRUE)
+  #pythondir <- "C:\\Users\\Emmerling\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
+  #use_python(python = pythondir, required = TRUE)
   # py_config()
   pyam <- import("pyam", convert = FALSE)
   
@@ -24,20 +24,19 @@ if(!file.exists("ar6_data.Rdata") & !reload_data){
   
   #load variables
   ar6_data <- pyam$read_iiasa('ar6-public', model='*', scenario="*", variable=varlist, region='World', meta=1)
-  ar6_data <- py_to_r(ar6_data$data)
-  ipcc_category <- py_to_r(ar6_data$meta$Category)
-  ipcc_category <- data.frame(scenario=trimws(names(ipcc_category)), category=unlist(ipcc_category))
-  #ar6_dataasiadf %>% left_join(ipcc_category)
-  
+  #as_pandas concatenates data and meta into a pandas DF (meta_cols = TRUE adds all meta data)
+  ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category"))
+  #pandas to R data frame
+  ar6_datadf <- py_to_r(ar6_datadf)
   #write final data frame as Rdata file
-  save(ar6_data, file = "ar6_data.Rdata")
+  save(ar6_datadf, variables, file = "ar6_data.Rdata")
 }else{
   load("ar6_data.Rdata")
 }
 
 
 #some diagnostics plots
-print(ggplot(ar6_data) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free"))
+print(ggplot(ar6_datadf) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free"))
 
 
 
