@@ -4,16 +4,13 @@ require(tidyverse)
 reload_data <- T
 
 #list of variables
-varlist <- c("Emissions|CO2", "Consumption", "Population", "Land Cover|Forest")
+varlist <- c("Emissions|CO2", "Consumption", "GDP|PPP", "Population", "Land Cover", "Land Cover|Forest", "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile")
 
 
 
 if(!file.exists("ar6_data.Rdata") | reload_data){
   #AR6 data
   require(reticulate)
-  #pythondir <- "C:\\Users\\Emmerling\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
-  #use_python(python = pythondir, required = TRUE)
-  # py_config()
   pyam <- import("pyam", convert = FALSE)
   
   #explore the source
@@ -25,7 +22,7 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
   #load variables
   ar6_data <- pyam$read_iiasa('ar6-public', model='*', scenario="*", variable=varlist, region='World', meta=1)
   #as_pandas concatenates data and meta into a pandas DF (meta_cols = TRUE adds all meta data)
-  ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category"))
+  ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category", "Vetting_future", "Vetting_historical", "IMP_marker"))
   #pandas to R data frame
   ar6_datadf <- py_to_r(ar6_datadf)
   #write final data frame as Rdata file
@@ -36,7 +33,7 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
 
 
 #some diagnostics plots
-print(ggplot(ar6_datadf) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free"))
+print(ggplot(ar6_datadf %>% filter(Vetting_future=="Pass" & Vetting_historical=="Pass")) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
 
 
 
