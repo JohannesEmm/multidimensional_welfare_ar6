@@ -11,12 +11,15 @@ rm(list = ls())
 #	library(magick)
 	library(ggplot2)
 	library(ggforce)
+  
+  library(tidyverse)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
 ####################################################################################################    
 
 	source("compute_welfare_df.R");
+source("compute_welfare.R");
 	source("add_per_capita_df.R");
 	source("add_min_max.R");
 
@@ -111,8 +114,14 @@ rm(list = ls())
 ###############################     compute welfare     ############################################
 ####################################################################################################    
 
-	#welfares=compute_welfare_df(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, rho, weight)
+	
+	welfares=compute_welfare_df(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, rho, weight)
 
 
 
+	
+	
+	
+	
+	ggplot(welfares %>% dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass") %>% dplyr::filter(!is.nan(value))) + geom_line(aes(year, value, group=interaction(scenario, model), color=Category_FaIRv1.6.2), alpha=0.7)
 

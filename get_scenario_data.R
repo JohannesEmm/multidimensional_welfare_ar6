@@ -1,7 +1,6 @@
-require(data.table)
 require(tidyverse)
 
-reload_data <- T
+reload_data <- F
 
 #list of variables
 varlist <- c("Emissions|CO2", "Consumption", "GDP|PPP", "Population", "Land Cover", "Land Cover|Forest", "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile")
@@ -25,6 +24,14 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
   ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category", "Vetting_future", "Vetting_historical", "IMP_marker"))
   #pandas to R data frame
   ar6_datadf <- py_to_r(ar6_datadf)
+  #all categories are lists, convert to simple vectors
+  Policy_category <- data.frame(Policy_category=unlist(ar6_datadf$Policy_category))
+  Policy_category_name <- data.frame(Policy_category_name=unlist(ar6_datadf$Policy_category_name))
+  Category_FaIRv1.6.2 <- data.frame(Category_FaIRv1.6.2=unlist(ar6_datadf$Category_FaIRv1.6.2))
+  Category <- data.frame(Category=unlist(ar6_datadf$Category))
+  ar6_datadf <- ar6_datadf %>% select(-c("Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category"))
+  ar6_datadf <- cbind(ar6_datadf, Policy_category, Policy_category_name, Category, Category_FaIRv1.6.2)
+  
   #write final data frame as Rdata file
   save(ar6_datadf, variables, file = "ar6_data.Rdata")
 }else{
@@ -33,7 +40,7 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
 
 
 #some diagnostics plots
-print(ggplot(ar6_datadf %>% filter(Vetting_future=="Pass" & Vetting_historical=="Pass")) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
+print(ggplot(ar6_datadf %>% dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass")) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
 
 
 
