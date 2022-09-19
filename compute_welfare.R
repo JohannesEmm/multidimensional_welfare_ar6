@@ -31,6 +31,7 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 		matrix_cons=ar6_datadf[ar6_datadf$variable==name_var,]
 
 	######## calculate welfare metric ######
+		#create output matrix with same format as input
 		out=matrix_cons
 		#rename variable to welfare and add additional parameter rho and weight by which scenario will be identified
 			out$rho=r
@@ -41,7 +42,7 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 		#calculate first summand of welfare metric:
 			#use geometric mean for r=1
 			if (r==1){
-				out$value=(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )				
+				out$value=(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )^(w_c)				
 				}else{
 				out$value=w_c*(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )^(1-r)
 				}
@@ -59,15 +60,13 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 			# reduce data to this vaiable:
 			matrix_var=ar6_datadf[ar6_datadf$variable==var,]
 			# retrieve values that matches the scenario of consumption  
-			values=matrix_var$value[match(out$identifier, matrix_var$identifier)] 
+			values=matrix_var$value[match(matrix_cons$identifier, matrix_var$identifier)] 
 			# add indicator to previous one
 				if (r ==1){				
 					if( any(variables_bad==var)){#use indicator as a bad
-					out$value=out$value*( (variables_max[j]-values)/(variables_max[j]-variables_min[j]) )
+					out$value=out$value*( (variables_max[j]-values)/(variables_max[j]-variables_min[j]) )^(w_nc)
 					}else{#use indicator as a good
-					out$value=out$value+w_nc*( (values-variables_min[j])/(variables_max[j]-variables_min[j]) )^(1-r)
-					}
-
+					out$value=out$value*( (values-variables_min[j])/(variables_max[j]-variables_min[j]) )^(w_nc)					}
 				}else{
 				if( any(variables_bad==var)){#use indicator as a bad
 					out$value=out$value+w_nc*( (variables_max[j]-values)/(variables_max[j]-variables_min[j]) )^(1-r)
@@ -79,7 +78,7 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 
 		#now add substitutability exponent:
 			if (r==1){
-				out$value=(out$value)^(1/3)
+				out$value=(out$value)
 				}else{
 				out$value=(out$value)^(1/(1-r))
 				}

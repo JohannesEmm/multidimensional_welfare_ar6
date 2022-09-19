@@ -8,18 +8,18 @@ rm(list = ls())
 	library(htmlTable)
 	library(magrittr)
 	library(kableExtra)
-#	library(magick)
 	library(ggplot2)
 	library(ggforce)
-  
-  library(tidyverse)
+	library(dplyr)	
+	library(stringr)
+#  	library(tidyverse)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
 ####################################################################################################    
 
 	source("compute_welfare_df.R");
-source("compute_welfare.R");
+	source("compute_welfare.R");
 	source("add_per_capita_df.R");
 	source("add_min_max.R");
 
@@ -29,8 +29,6 @@ source("compute_welfare.R");
 #########################        load dataframe       ##############################################
 ####################################################################################################    
 
-	#file_name='SSP_IAM_V2_201811.csv'
-	#df=read.csv(file=file_name)
 	file_name='ar6_data.Rdata';
 	df=load(file_name);
 
@@ -39,22 +37,8 @@ source("compute_welfare.R");
 ####################################################################################################    
 
 # add column that identifies the scenario with region and time
-      ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, # NOT IMPLEMENTED ar6_datadf$region,
-						 ar6_datadf$year, ar6_datadf$Ssp_family, 
-						 ar6_datadf$Policy_category, ar6_datadf$Policy_category_name, 
-						 ar6_datadf$Category_FaIRv1.6.2, ar6_datadf$Category ,
-						 ar6_datadf$Vetting_future, ar6_datadf$Vetting_historical,
-						 ar6_datadf$IMP_marker, sep="_")
-
-# add column that identifies the scenario without time
-      ar6_datadf$identifierWOregion <- paste(ar6_datadf$model, ar6_datadf$scenario, # NOT IMPLEMENTED ar6_datadf$region,
-						 	ar6_datadf$Ssp_family, 
-						 	ar6_datadf$Policy_category, ar6_datadf$Policy_category_name, 
-						 	ar6_datadf$Category_FaIRv1.6.2, ar6_datadf$Category ,
-						 	ar6_datadf$Vetting_future, ar6_datadf$Vetting_historical,
-						 	ar6_datadf$IMP_marker, sep="_")
-
-
+ 
+      ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, ar6_datadf$year, sep="_")
 
 ####################################################################################################    
 #####################     variables for welfare metric      ########################################
@@ -108,7 +92,7 @@ source("compute_welfare.R");
 	#welfare weights: specify the ratio of weighting consumption against all other variables
 	#1: all variables (e.g. consumption, emissions, biodiversity) get the same weight
 	#2: consumption gets double the weight compared to all other variables, all other variables have the same relative weight
-	weight=10;
+	weight=c(1,10);
 
 ####################################################################################################    
 ###############################     compute welfare     ############################################
@@ -118,10 +102,9 @@ source("compute_welfare.R");
 	welfares=compute_welfare_df(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, rho, weight)
 
 
-
+ar6_datadf$identifier<-NULL
+welfares$identifier<-NULL
 	
 	
 	
-	
-	ggplot(welfares %>% dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass") %>% dplyr::filter(!is.nan(value))) + geom_line(aes(year, value, group=interaction(scenario, model), color=Category_FaIRv1.6.2), alpha=0.7)
 
