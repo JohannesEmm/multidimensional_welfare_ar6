@@ -9,7 +9,7 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 # variables_max is list of maximum values for variables
 # variables_bad is list of variables that are a bad 
 ##NOT IMPLEMENTED e is list of inequality aversion parameters
-# r is substitutability levels 
+# r is substitutability level 
 # w is relative weight of consumption to all other variables
 
 	#convert minima and maxima to numeric values
@@ -37,10 +37,11 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 			out$rho=r
 			out$weight=w
 			out$variable="Welfare"
-			out$unit=""
+			out$unit="utils"
 			
 		#calculate first summand of welfare metric:
-			#use geometric mean for r=1
+		# this is specifically for consumption/GDP: taking the log of the variable
+			#use limit for rho=1
 			if (r==1){
 				out$value=(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )^(w_c)				
 				}else{
@@ -51,34 +52,28 @@ compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min,
 		
 		for (j in 2:length(variables))
 			{
-			var=variables[j]
-				if (any(variables_pop==var))
-				{
-					# variable name for per capita value
-					var=paste(var, "|PerCapita", sep="")
-				}
+		  var=variables[j]
+		  #indicate if variable is a bad:
+		  bad=1*any(variables_bad==var);
+			# variable name for per capita value 
+			if (any(variables_pop==var)){var=paste(var, "|PerCapita", sep="")}
 			# reduce data to this vaiable:
 			matrix_var=ar6_datadf[ar6_datadf$variable==var,]
 			# retrieve values that matches the scenario of consumption  
-			values=matrix_var$value[match(matrix_cons$identifier, matrix_var$identifier)] 
-			# add indicator to previous one
-				if (r ==1){				
-					if( any(variables_bad==var)){#use indicator as a bad
-					out$value=out$value*( (variables_max[j]-values)/(variables_max[j]-variables_min[j]) )^(w_nc)
-					}else{#use indicator as a good
-					out$value=out$value*( (values-variables_min[j])/(variables_max[j]-variables_min[j]) )^(w_nc)					}
-				}else{
-				if( any(variables_bad==var)){#use indicator as a bad
-					out$value=out$value+w_nc*( (variables_max[j]-values)/(variables_max[j]-variables_min[j]) )^(1-r)
-					}else{#use indicator as a good
-					out$value=out$value+w_nc*( (values-variables_min[j])/(variables_max[j]-variables_min[j]) )^(1-r)
-					}
+			values=matrix_var$value[match(out$identifier, matrix_var$identifier)] 
+			# add indicator to previous one 
+			#use limit for rho=1
+			if (r ==1){			
+			  out$value=out$value*( ( bad*(variables_max[j]-values) +(1-bad)*(values-variables_min[j]) )/(variables_max[j]-variables_min[j]) )^(w_nc)
+			}else{
+					out$value=out$value+w_nc*( ( bad*(variables_max[j]-values) +(1-bad)*(values-variables_min[j]) )/(variables_max[j]-variables_min[j]) )^(1-r)
 				}
-			}
 
+		}
+	
 		#now add substitutability exponent:
 			if (r==1){
-				out$value=(out$value)
+				out$value=out$value
 				}else{
 				out$value=(out$value)^(1/(1-r))
 				}

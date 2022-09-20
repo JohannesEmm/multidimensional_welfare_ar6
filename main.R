@@ -6,6 +6,7 @@ rm(list = ls())
 	library(dplyr)	
 	library(stringr)
   library(tidyverse)
+  library(imputeTS)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
@@ -65,8 +66,8 @@ rm(list = ls())
 # for emissions this is zero (yes for co2)?
 # what should it be for land cover?
 
-	variables_min=c(0.1, "NA", 0);
-	variables_max=c("NA", "NA", "NA");	
+	variables_min=c(0.1, NA, 0);
+	variables_max=c( NA,  NA,  NA);	
 	
 	#remove all consumption values that are below the minimum (measure not defined for that)
 	ar6_datadf<-ar6_datadf[-which(ar6_datadf$variable=="Consumption|PerCapita" & ar6_datadf$value<variables_min[1]),]
