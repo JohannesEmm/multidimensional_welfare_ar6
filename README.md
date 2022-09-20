@@ -4,7 +4,6 @@
 # Todos: 
  - check computation of welfare metric
  - check that minima and maxima make sense
- - plot the data and check for consistency
  - implement more flexibly weighting scenarios
  
 # Issues:
