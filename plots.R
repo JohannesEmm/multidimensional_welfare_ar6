@@ -26,4 +26,7 @@ models=unique(welfares$model)
 		dev.off()
 	}
 
+#data_m <- filter(welfares, model=="MESSAGEix-GLOBIOM_GEI 1.0", scenario=="SSP2_int_lc_15") 
+#data_a <- filter(ar6_datadf, variable=="Consumption|PerCapita") 
+#data_a <- filter(data_a, value<0.1) 
 

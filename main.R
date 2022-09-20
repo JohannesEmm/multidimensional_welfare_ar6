@@ -2,17 +2,10 @@
 
 rm(list = ls())
 
-	library(readxl)
-	library(officer)
-	library(flextable)
-	library(htmlTable)
-	library(magrittr)
-	library(kableExtra)
 	library(ggplot2)
-	library(ggforce)
 	library(dplyr)	
 	library(stringr)
-#  	library(tidyverse)
+  library(tidyverse)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
@@ -32,12 +25,15 @@ rm(list = ls())
 	file_name='ar6_data.Rdata';
 	df=load(file_name);
 
+	#remove all consumption values that are zero (measure not defined for that)
+  ar6_datadf<-ar6_datadf[-which(ar6_datadf$variable=="Consumption" & ar6_datadf$value==0),]
+
+
 ####################################################################################################    
 #########################   specify column names that uniquely determine scenario   ################
 ####################################################################################################    
 
 # add column that identifies the scenario with region and time
- 
       ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, ar6_datadf$year, sep="_")
 
 ####################################################################################################    
@@ -71,6 +67,10 @@ rm(list = ls())
 
 	variables_min=c(0.1, "NA", 0);
 	variables_max=c("NA", "NA", "NA");	
+	
+	#remove all consumption values that are below the minimum (measure not defined for that)
+	ar6_datadf<-ar6_datadf[-which(ar6_datadf$variable=="Consumption|PerCapita" & ar6_datadf$value<variables_min[1]),]
+	
  
 	#add minima and maxima across all scenarios if non given before:
 	res=add_min_max(ar6_datadf, variables, variables_pop, variables_min, variables_max)
