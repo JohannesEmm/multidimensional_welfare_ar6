@@ -34,7 +34,7 @@ rm(list = ls())
 #########################   specify column names that uniquely determine scenario   ################
 ####################################################################################################    
 
-# add column that identifies the scenario with region and time
+# add column that identifies the scenario with (NOT IMPLEMENTED region and) time
       ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, ar6_datadf$year, sep="_")
 
 ####################################################################################################    
