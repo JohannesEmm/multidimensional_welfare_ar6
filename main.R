@@ -2,32 +2,27 @@
 
 rm(list = ls())
 
-	library(ggplot2)
-	library(dplyr)	
-	library(stringr)
-  library(tidyverse)
-  library(imputeTS)
+library(ggplot2)
+library(dplyr)	
+library(stringr)
+library(tidyverse)
+library(imputeTS)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
 ####################################################################################################    
 
-	source("compute_welfare_df.R");
-	source("compute_welfare.R");
-	source("add_per_capita_df.R");
-	source("add_min_max.R");
-
+source("compute_welfare_df.R");
+source("compute_welfare.R");
+source("add_indicators_df.R");
 
 
 ####################################################################################################    
 #########################        load dataframe       ##############################################
 ####################################################################################################    
 
-	file_name='ar6_data.Rdata';
-	df=load(file_name);
-
-	#remove all consumption values that are zero (measure not defined for that)
-  ar6_datadf<-ar6_datadf[-which(ar6_datadf$variable=="Consumption" & ar6_datadf$value==0),]
+file_name='ar6_data.Rdata';
+df=load(file_name);
 
 
 ####################################################################################################    
@@ -35,77 +30,90 @@ rm(list = ls())
 ####################################################################################################    
 
 # add column that identifies the scenario with (NOT IMPLEMENTED region and) time
-      ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, ar6_datadf$year, sep="_")
+ar6_datadf$identifier <- paste(ar6_datadf$model, ar6_datadf$scenario, ar6_datadf$year, sep="XXX")
 
 ####################################################################################################    
 #####################     variables for welfare metric      ########################################
 ####################################################################################################    
 
 # specify variables to be included in welfare metric (these have to be in the dataframe):
+variables=unique(ar6_datadf$variable)
+print("#### List of variables to be used for min/max and weight definition below: #####")
+print(variables)
+if (!is_empty(setdiff("Population",variables))){abort("Error: scenario data does not contain population")}
 
-	variables=c("Consumption", "Land Cover|Forest", "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile");
+#specify which are evaluated with the log (these are usually consumption and GDP)
+variables_log=c("Consumption","GDP|PPP"); 
+  if (!is_empty(setdiff(variables_log,variables))){abort("Error: list of log-variables not contained in variables")}
 
-	#specify which variables are bad (i.e. welfare is decreasing in them)
-	variables_bad=c("AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile");
+#specify which variables are bad (i.e. welfare is decreasing in them)
+variables_bad=c("Emissions|Sulfur","Emissions|NOx","Emissions|CO2","AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile");
+  if (!is_empty(setdiff(variables_bad,variables))){abort("Error: list of bad-variables not contained in variables")}
 
-	#specify variables out of list with regional inequality assessment
-	#NOT IMPLEMENTED variables_regional=c();
+#specify variables out of list with regional inequality assessment
+#NOT IMPLEMENTED variables_regional=c();
 
-# specify variables that have to be on a per-capita basis from list above (internal computation):
+#specify variables that have to be on a per-capita basis from list above (internal computation):
+variables_pop=c("Emissions|Sulfur","Emissions|NOx","Consumption","Emissions|CO2","GDP|PPP");
+  if (!is_empty(setdiff(variables_pop,variables))){print("Error: list of per-capita-variables not contained in variables")}
 
-	variables_pop=c("Consumption");
-
-	#add per-capita values to dataframe: variable name "variables_pop"+"|PerCapita"
-	ar6_datadf=add_per_capita_df(ar6_datadf, variables_pop)
+#add per-capita values to dataframe: variable name "variables_pop"+"|PerCapita"
+#ar6_datadf=add_per_capita_df(ar6_datadf, variables_pop)
 
 # specify minimum and maximum for all variables 
 # (for per-capita variables these should already be in per-capita terms)
-# if no maximum/minimum can be a priori specified, specify "NA" and the maximum/minimum across all scenarios will be taken
+# if no maximum/minimum can be a priori specified, specify "NA" and the maximum/minimum across all models scenarios will be taken
 
-# for consumption this is 0.1 thousand USD per capita
+# for consumption/gdp this is 0.1 thousand USD per capita
 # for emissions this is zero (yes for co2)?
 # what should it be for land cover?
 
-	variables_min=c(0.1, NA, 0);
-	variables_max=c( NA,  NA,  NA);	
-	
-	#remove all consumption values that are below the minimum (measure not defined for that)
-	ar6_datadf<-ar6_datadf[-which(ar6_datadf$variable=="Consumption|PerCapita" & ar6_datadf$value<variables_min[1]),]
-	
- 
-	#add minima and maxima across all scenarios if non given before:
-	res=add_min_max(ar6_datadf, variables, variables_pop, variables_min, variables_max)
-	variables_min=res$mins
-	variables_max=res$maxs
+variables_min=c(0, 0.1, NA, NA, NA,0.1, NA, NA, NA);
+variables_max=c(NA, NA, NA, NA, NA, NA, NA, NA, NA);	
 
-	
+if (length(variables_min)!=length(variables)){abort("ERROR: variable minimums are not given for variables")}
+if (length(variables_min)!=length(variables)){abort("ERROR: variable maximums are not given for variables")}
+
+#For each variable, the indicator will be added along with minimum, maximum, indicator for bad and log
+indicators=add_indicators_df(ar6_datadf, variables_log, variables_bad, variables_pop, variables_min, variables_max)
+
+
 
 ####################################################################################################    
 ##########################     normative parameters     ############################################
 ####################################################################################################    
 
-	# inequality aversion:
-	#NOT IMPLEMENTED epsilon=c(0,1,1.5);
-	
-	#substitutability between dimensions of welfare metric
-	rho=c(0,1,2);
+# inequality aversion:
+#NOT IMPLEMENTED epsilon=c(0,1,1.5);
 
-	#welfare weights: specify the ratio of weighting consumption against all other variables
-	#1: all variables (e.g. consumption, emissions, biodiversity) get the same weight
-	#2: consumption gets double the weight compared to all other variables, all other variables have the same relative weight
-	weight=c(1,10);
+#substitutability between dimensions of welfare metric
+rho=c(0,1,2);
+
+#welfare weights: specify relative weights of each dimension
+# these are a dataframe for different sets of weights: rows are different sets, columns are variables 
+
+weight=data.frame(matrix(NA, nrow = 1, ncol = length(variables)))
+names(weight)=variables
+
+weight[1,]=c(1,0,0,0.5,0.5,100,0,1,0)
+weight[2,]=c(1,0,0,0.5,0.5,1  ,0,1,0)
+weight[3,]=c(1,0,0,0.5,0.5,0.2,0,1,0)
 
 ####################################################################################################    
 ###############################     compute welfare     ############################################
 ####################################################################################################    
 
-	
-	welfares=compute_welfare_df(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, rho, weight)
+
+welfares=compute_welfare_df(indicators, rho, weight)
 
 
 ar6_datadf$identifier<-NULL
 welfares$identifier<-NULL
-	
+
+
+
+
+
 	
 	
 

@@ -1,88 +1,52 @@
-compute_welfare <- function(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, r, w)
+compute_welfare <- function(indicators, r, w)
 {
-# computes the welfare metric C1 of Zuber (2022)
-# welfare metric computed for (model, scenario, year, substitution parameter, weight)
-# ar6_datadf is dataframe
-# variables contains list of variables to be included in welfare metric
-# variables_pop is list of variables that have been normalized by population
-# variables_min is list of minimum values for variables
-# variables_max is list of maximum values for variables
-# variables_bad is list of variables that are a bad 
-##NOT IMPLEMENTED e is list of inequality aversion parameters
-# r is substitutability level 
-# w is relative weight of consumption to all other variables
+  # computes the welfare metric C1 of Zuber (2022) for all welfare parameters
+  # welfare metric computed for (model, scenario, year, substitution parameter, set of weights)
+  # indicators is dataframe with column indicator used for welfare metric
+  ##NOT IMPLEMENTED e is list of inequality aversion parameters
+  # r is substitutability level 
+  # w is list of weights of all variables
 
-	#convert minima and maxima to numeric values
-	variables_min=as.numeric(variables_min)
-	variables_max=as.numeric(variables_max)
+  variables=unique(indicators$variable)
+  # initiate output with first variable that has non-zero weight to get the correct scenarios in
+  w_nonzero <- which(w!= 0)
+  # take first non-zero weighted variable 
+  var=variables[w_nonzero[1]] 
+  out=indicators[indicators$variable==var,]
+  
+  #rename variable to welfare and add additional parameter rho and weight by which scenario will be identified
+  out$rho=r
+  out$weight=paste(w, sep=" ", collapse=",")
+  out$min<-NULL
+  out$max<-NULL
+  out$bad<-NULL
+  out$log<-NULL
+  out$variable="Welfare"
+  out$unit="utils"
+  out$value= 1*(r==1)+0 #initiate welfare output: start with zero if summation of indicators (rho!=0) and with 1 if geometric product (rho==1)
+  
+  
+  ######## calculate welfare metric ######
+  #normalize weights:
+  w=w/(sum(w))
 
-	#calculate weights: this assumes that consumption is the first variable!
-	w_c= w/(w+length(variables)-1) # weight of consumption metric so that its weights is "w" times the weight of each of the other variables
-	w_nc=1/(w+length(variables)-1) # individual weight of all other variables
-
-	######## calculate welfare metric ######
+	#go through all variables and add value
 	
-	# take first variable (consumption) 
-	# consumption welfare indicator is different by transforming with natural logarithm
-
-		var=variables[1] 
-       	# variable name for per capita value
-		name_var=paste(var, "|PerCapita", sep="")
-		matrix_cons=ar6_datadf[ar6_datadf$variable==name_var,]
-
-	######## calculate welfare metric ######
-		#create output matrix with same format as input
-		out=matrix_cons
-		#rename variable to welfare and add additional parameter rho and weight by which scenario will be identified
-			out$rho=r
-			out$weight=w
-			out$variable="Welfare"
-			out$unit="utils"
-			
-		#calculate first summand of welfare metric:
-		# this is specifically for consumption/GDP: taking the log of the variable
-			#use limit for rho=1
-			if (r==1){
-				out$value=(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )^(w_c)				
-				}else{
-				out$value=w_c*(  (log(out$value)-log(variables_min[1]))/(log(variables_max[1])-log(variables_min[1]))  )^(1-r)
-				}
-
-		#go through all other variables and add value
-		
-		for (j in 2:length(variables))
-			{
-		  var=variables[j]
-		  #indicate if variable is a bad:
-		  bad=1*any(variables_bad==var);
-			# variable name for per capita value 
-			if (any(variables_pop==var)){var=paste(var, "|PerCapita", sep="")}
-			# reduce data to this vaiable:
-			matrix_var=ar6_datadf[ar6_datadf$variable==var,]
-			# retrieve values that matches the scenario of consumption  
-			values=matrix_var$value[match(out$identifier, matrix_var$identifier)] 
-			# add indicator to previous one 
-			#use limit for rho=1
-			if (r ==1){			
-			  out$value=out$value*( ( bad*(variables_max[j]-values) +(1-bad)*(values-variables_min[j]) )/(variables_max[j]-variables_min[j]) )^(w_nc)
-			}else{
-					out$value=out$value+w_nc*( ( bad*(variables_max[j]-values) +(1-bad)*(values-variables_min[j]) )/(variables_max[j]-variables_min[j]) )^(1-r)
-				}
-
-		}
+	for (j in w_nonzero)
+	{
+	  var=variables[j]
+	  # reduce data to this vaiable:
+	  matrix_var=indicators[indicators$variable==var,]
+	  # retrieve values that matches the scenario of consumption  
+	  values=matrix_var$indicator[match(out$identifier, matrix_var$identifier)] 
+	  # add indicator to previous one 
+	  out$value=(r==1)*(out$value*( values )^(w[1,j]))+(1-(r==1))*(out$value+w[1,j]*( values )^(1-r*(r!=1)))
+	}
 	
-		#now add substitutability exponent:
-			if (r==1){
-				out$value=out$value
-				}else{
-				out$value=(out$value)^(1/(1-r))
-				}
-			
-
-
-return(out)
-
+	#now add substitutability exponent:
+	  out$value=(out$value)^(1/(1-r*(r!=1)))
+	
+	return(out)
+	
 }
-
-
-
+	

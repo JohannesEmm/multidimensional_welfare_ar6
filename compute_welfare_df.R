@@ -1,28 +1,28 @@
-compute_welfare_df <- function(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, rho, weight)
+compute_welfare_df <- function(indicators, rho, weight)
 {
-# computes the welfare metric C1 of Zuber (2022) for all welfare parameters
-# welfare metric computed for (model, scenario, year, substitution parameter, weight)
-# ar6_datadf is dataframe
-# variables contains list of variables to be included in welfare metric
-# variables_pop is list of variables that have been normalized by population
-# variables_min is list of minimum values for variables
-# variables_max is list of maximum values for variables
-# variables_bad is list of variables that are a bad 
-##NOT IMPLEMENTED e is list of inequality aversion parameters
-# rho is list of substitutability levels 
-# weight is list of relative weights of consumption to all other variables
+  # computes the welfare metric C1 of Zuber (2022) for all welfare parameters
+  # welfare metric computed for (model, scenario, year, substitution parameter, set of weights)
+  # indicators is dataframe with column indicator used for welfare metric
+  ##NOT IMPLEMENTED e is list of inequality aversion parameters
+  # rho is list of substitutability levels 
+  # weight is dataframe with rows set of weights of all variables
 	
 	#initiate output
-	out=ar6_datadf[1,]
+	out=indicators[1,]
+	out$min<-NULL
+	out$max<-NULL
+	out$bad<-NULL
+	out$log<-NULL
 	out$rho=NA
 	out$weight=NA
 	out$variable="Welfare"
 	out$unit="utils"
-
+	
+  
 	#go through welfare parameters and compute welfare metric
 		for (r in rho){
-				   for (w in weight){
-								out_local=compute_welfare(ar6_datadf, variables, variables_pop, variables_min, variables_max, variables_bad, r, w)
+				   for (w in 1:dim(weight)[1]){
+								out_local=compute_welfare(indicators, r, weight[w,])
 							  out=rbind(out, out_local)
 							   }
 				  }
