@@ -3,7 +3,14 @@ require(tidyverse)
 reload_data <- F
 
 #list of variables
-varlist <- c("Emissions|CO2", "Consumption", "GDP|PPP", "Population", "Land Cover", "Land Cover|Forest", "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile")
+varlist <- c("Emissions|NOx", "Emissions|Sulfur", "Emissions|CO2", "Consumption", "GDP|PPP", "Population", "Land Cover", "Land Cover|Forest", "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile")
+
+
+#for using python, make sure the path to it is speciied using 
+#file.edit(file.path("~", ".Rprofile"))
+#e.g., 
+#Sys.setenv(RETICULATE_PYTHON="C:\\Users\\Emmerling\\AppData\\Local\\Programs\\Python\\Python310\\python.exe")
+Sys.which('python')
 
 
 
