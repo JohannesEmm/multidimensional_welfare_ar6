@@ -32,17 +32,19 @@ models=unique(welfares$model)
 		dev.off()
 	}
 # all scenarios
+theme_set(theme_bw())
 png(file = paste("figures/","AR6_database",".png",sep="")) 
 data_m <- filter(welfares, year != "", value != "") %>%
   dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass")%>% 
   filter(!is.na(value)) %>%
-  filter(!is.na(model), model %in% models[10:17]) 
+  filter(!is.na(model), model %in% models) 
 data_m$value<-as.numeric(data_m$value)
-p=ggplot(data_m ) +
-  geom_line(aes(year, value, group=interaction(scenario), color=Category_FaIRv1.6.2)) + 
+p=(ggplot(data_m ) +
+  geom_line(aes(year, value, group=interaction(model,scenario), color=Category_FaIRv1.6.2), alpha = 0.7) + 
   labs(title = paste("AR6-database", ": welfare metric by rho and weight"),
        y = "welfare", x = "") + 
-  facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs))
+    scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
+  facet_grid( rho ~ weight, scales = "free", labeller=labeller(rho = rho.labs, weight = weight.labs)))
 print(p)
 dev.off()
 #
