@@ -3,12 +3,34 @@
 
 dir.create("figures")
 
-#subplot per model, rho and weight
+# Labels
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
 names(weight.labs) <- c("1,0,0,0.5,0.5,100,0,1,0", "1,0,0,0.5,0.5,1,0,1,0", "1,0,0,0.5,0.5,0.2,0,1,0")
 rho.labs <- c("rho:0", "rho:1", "rho:2")
 names(rho.labs) <- c("0", "1", "2")
 
+# Creating a summary figure displaying the mean and 95% confidence interval for selected FaIRv1.6.2 categories
+
+welfares$year <- as.numeric(welfares$year)
+
+df_welfare_summary <- filter(welfares, year >=2020 , value != "") %>%
+  group_by(year,Category_FaIRv1.6.2,rho,weight) %>%
+  summarise(n=n(),mean=mean(value),max=max(value),min=min(value),sd = sd(value))%>%
+  mutate(sem = sd / sqrt(n - 1),
+         CI_lower = mean + qt((1-0.95)/2, n - 1) * sem,
+         CI_upper = mean - qt((1-0.95)/2, n - 1) * sem)
+
+df_welfare_summary_selected <- subset(df_welfare_summary,Category_FaIRv1.6.2=='C1a'|Category_FaIRv1.6.2=='C1b'|Category_FaIRv1.6.2=='C2'|Category_FaIRv1.6.2=='C3'|Category_FaIRv1.6.2=='C4'|Category_FaIRv1.6.2=='C5'|Category_FaIRv1.6.2=='C7')
+
+png(file = "Summary-Figure.png") 	
+fig=ggplot(df_welfare_summary_selected,aes(x=year,y=mean,color=Category_FaIRv1.6.2)) +
+  geom_line(aes(x=year,y=mean,color=Category_FaIRv1.6.2))+
+  geom_ribbon(aes(ymin=CI_lower,ymax=CI_upper,fill=Category_FaIRv1.6.2),color="grey70",alpha=0.4)+
+  facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs))
+print(fig)
+dev.off()
+
+#subplot per model, rho and weight
 
 models=unique(welfares$model)
 	for( m in models){	
