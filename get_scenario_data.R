@@ -28,16 +28,15 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
   #load variables
   ar6_data <- pyam$read_iiasa('ar6-public', model='*', scenario="*", variable=varlist, region='World', meta=1)
   #as_pandas concatenates data and meta into a pandas DF (meta_cols = TRUE adds all meta data)
-  ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category", "Vetting_future", "Vetting_historical", "IMP_marker"))
+  ar6_datadf <- ar6_data$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category", "IMP_marker"))
   #pandas to R data frame
   ar6_datadf <- py_to_r(ar6_datadf)
   #all categories are lists, convert to simple vectors
   Policy_category <- data.frame(Policy_category=unlist(ar6_datadf$Policy_category))
   Policy_category_name <- data.frame(Policy_category_name=unlist(ar6_datadf$Policy_category_name))
-  Category_FaIRv1.6.2 <- data.frame(Category_FaIRv1.6.2=unlist(ar6_datadf$Category_FaIRv1.6.2))
   Category <- data.frame(Category=unlist(ar6_datadf$Category))
-  ar6_datadf <- ar6_datadf %>% select(-c("Policy_category", "Policy_category_name", "Category_FaIRv1.6.2", "Category"))
-  ar6_datadf <- cbind(ar6_datadf, Policy_category, Policy_category_name, Category, Category_FaIRv1.6.2)
+  ar6_datadf <- ar6_datadf %>% select(-c("Policy_category", "Policy_category_name", "Category"))
+  ar6_datadf <- cbind(ar6_datadf, Policy_category, Policy_category_name, Category)
   
   #write final data frame as Rdata file
   save(ar6_datadf, variables, file = "ar6_data.Rdata")
@@ -47,7 +46,7 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
 
 
 #some diagnostics plots
-print(ggplot(ar6_datadf %>% dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass")) + geom_line(aes(year, value, group=interaction(scenario, model), color=variable), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
+print(ggplot(ar6_datadf %>% dplyr::filter(Category!="failed-vetting" & Category!="NaN" & Category!="no-climate-assessment")) + geom_line(aes(year, value, group=interaction(scenario, model), color=Category), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
 
 
 

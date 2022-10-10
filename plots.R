@@ -23,7 +23,7 @@ models=unique(welfares$model)
 		#plot if welfare levels available
 		 			if(dim(data_m)[1]>0){
 				p= 	ggplot(data_m ) +
-					geom_line(aes(year, value, group=interaction(scenario), color=Category_FaIRv1.6.2)) + 
+					geom_line(aes(year, value, group=interaction(scenario), color=Category)) + 
   					labs(title = paste(m, ": welfare metric by rho and weight"),
        				y = "welfare", x = "") + 
   					facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs))
@@ -40,7 +40,7 @@ data_m <- filter(welfares, year != "", value != "") %>%
   filter(!is.na(model), model %in% models) 
 data_m$value<-as.numeric(data_m$value)
 p=(ggplot(data_m ) +
-  geom_line(aes(year, value, group=interaction(model,scenario), color=Category_FaIRv1.6.2), alpha = 0.7) + 
+  geom_line(aes(year, value, group=interaction(model,scenario), color=Category), alpha = 0.7) + 
   labs(title = paste("AR6-database", ": welfare metric by rho and weight"),
        y = "welfare", x = "") + 
     scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
