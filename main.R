@@ -1,4 +1,4 @@
-#setwd('C:/Users/uk/Projects/Navigate/AlternativeWelfareMetrics')
+#setwd('C:/Users/uk/Projects/Navigate/AlternativeWelfareMetrics/github')
 
 rm(list = ls())
 
@@ -7,6 +7,7 @@ library(dplyr)
 library(stringr)
 library(tidyverse)
 library(imputeTS)
+library(data.table)
 
 ####################################################################################################    
 #########################        load functions       ##############################################
@@ -54,7 +55,7 @@ variables_bad=c("Emissions|Sulfur","Emissions|NOx","Emissions|CO2","AR6 climate 
 #NOT IMPLEMENTED variables_regional=c();
 
 #specify variables that have to be on a per-capita basis from list above (internal computation):
-variables_pop=c("Emissions|Sulfur","Emissions|NOx","Consumption","Emissions|CO2","GDP|PPP");
+variables_pop=c("Emissions|Sulfur","Emissions|NOx","Consumption","Emissions|CO2","GDP|PPP", "Final Energy|Electricity","Food Energy Supply");
   if (!is_empty(setdiff(variables_pop,variables))){print("Error: list of per-capita-variables not contained in variables")}
 
 #add per-capita values to dataframe: variable name "variables_pop"+"|PerCapita"
@@ -68,11 +69,11 @@ variables_pop=c("Emissions|Sulfur","Emissions|NOx","Consumption","Emissions|CO2"
 # for emissions this is zero (yes for co2)?
 # what should it be for land cover?
 
-variables_min=c(0, 0.1, NA, NA, NA,0.1, NA, NA, NA);
-variables_max=c(NA, NA, NA, NA, NA, NA, NA, NA, NA);	
-
-if (length(variables_min)!=length(variables)){abort("ERROR: variable minimums are not given for variables")}
-if (length(variables_min)!=length(variables)){abort("ERROR: variable maximums are not given for variables")}
+#ensure order of the following list is the same as in (variables)
+variables_min=c(0, 0.1, NA, NA, NA, NA,0.1, NA, NA, NA, NA, NA);
+names(variables_min)=variables
+variables_max=c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA);	
+names(variables_max)=variables
 
 #For each variable, the indicator will be added along with minimum, maximum, indicator for bad and log
 indicators=add_indicators_df(ar6_datadf, variables_log, variables_bad, variables_pop, variables_min, variables_max)
@@ -87,28 +88,29 @@ indicators=add_indicators_df(ar6_datadf, variables_log, variables_bad, variables
 #NOT IMPLEMENTED epsilon=c(0,1,1.5);
 
 #substitutability between dimensions of welfare metric
-rho=c(0,1,2);
+rho=c(0,1,5);
 
 #welfare weights: specify relative weights of each dimension
 # these are a dataframe for different sets of weights: rows are different sets, columns are variables 
 
-weight=data.frame(matrix(NA, nrow = 1, ncol = length(variables)))
-names(weight)=variables
 
-weight[1,]=c(1,0,0,0.5,0.5,100,0,1,0)
-weight[2,]=c(1,0,0,0.5,0.5,1  ,0,1,0)
-weight[3,]=c(1,0,0,0.5,0.5,0.2,0,1,0)
+weight1=c(1,0,0,0.5,0.5,1,100,0,1,0,0,1)
+names(weight1)=variables
+weight2=c(1,0,0,0.5,0.5,1,1  ,0,1,0,0,1)
+names(weight2)=variables
+weight3=c(1,0,0,0.5,0.5,1,0.2,0,1,0,0,1)
+names(weight3)=variables
+weights=list(a=weight1, b=weight2, c=weight3)
 
 ####################################################################################################    
 ###############################     compute welfare     ############################################
 ####################################################################################################    
 
 
-welfares=compute_welfare_df(indicators, rho, weight)
+welfares=compute_welfare_df(indicators, rho, weights)
 
 
 ar6_datadf$identifier<-NULL
-welfares$identifier<-NULL
 
 
 

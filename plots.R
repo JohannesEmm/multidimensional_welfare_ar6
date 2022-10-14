@@ -5,15 +5,15 @@ dir.create("figures")
 
 #subplot per model, rho and weight
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
-names(weight.labs) <- c("1,0,0,0.5,0.5,100,0,1,0", "1,0,0,0.5,0.5,1,0,1,0", "1,0,0,0.5,0.5,0.2,0,1,0")
-rho.labs <- c("rho:0", "rho:1", "rho:2")
-names(rho.labs) <- c("0", "1", "2")
+names(weight.labs) <- c(paste(weight[1,], sep=" ", collapse=","), paste(weight[2,], sep=" ", collapse=","), paste(weight[3,], sep=" ", collapse=","))
+rho.labs <- c("rho:0", "rho:1", "rho:5")
+names(rho.labs) <- c("0", "1", "5")
 
 
 models=unique(welfares$model)
 	for( m in models){	
 		data_m <- filter(welfares, year != "", value != "") %>%
-		dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass")%>% 
+	  	dplyr::filter(Category!="failed-vetting")%>% 
   		filter(!is.na(value)) %>%
   		filter(!is.na(model), model == m) 
 		data_m$value<-as.numeric(data_m$value) 
@@ -26,16 +26,16 @@ models=unique(welfares$model)
 					geom_line(aes(year, value, group=interaction(scenario), color=Category)) + 
   					labs(title = paste(m, ": welfare metric by rho and weight"),
        				y = "welfare", x = "") + 
-  					facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs))
+  					facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs), scales="free")
 				print(p) 
 			}
 		dev.off()
 	}
 # all scenarios
 theme_set(theme_bw())
-png(file = paste("figures/","AR6_database",".png",sep="")) 
+png(file = paste("figures/","AR6_database- all scenarios",".png",sep="")) 
 data_m <- filter(welfares, year != "", value != "") %>%
-  dplyr::filter(Vetting_future=="Pass" & Vetting_historical=="Pass")%>% 
+  dplyr::filter(Category!="failed-vetting")%>% 
   filter(!is.na(value)) %>%
   filter(!is.na(model), model %in% models) 
 data_m$value<-as.numeric(data_m$value)
@@ -47,8 +47,26 @@ p=(ggplot(data_m ) +
   facet_grid( rho ~ weight, scales = "free", labeller=labeller(rho = rho.labs, weight = weight.labs)))
 print(p)
 dev.off()
-#
-data_m <- filter(ar6_datadf, model=="AIM/CGE 2.2", scenario=="EN_NPi2020_600", year==2020) 
-data_a <- filter(ar6_datadf, variable=="AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile") 
-data_a <- filter(data_a, value<0) 
+
+# all scenarios
+theme_set(theme_bw())
+png(file = paste("figures/","AR6_database- mean across categories",".png",sep="")) 
+data_m <- welfares %>% group_by(Category, year, rho, weight) %>%
+  dplyr::summarize(Mean = mean(value, na.rm=TRUE), SD=sd(value, na.rm=TRUE))
+data_m<- data_m %>% 
+  drop_na(Mean, SD)
+data_m <- data_m %>% 
+  filter(year %in% seq(from = 2010, to = 2100, by = 10))%>%
+  dplyr::filter(Category!="failed-vetting")
+p=(ggplot(data_m, aes(x = year, group = Category)) +
+     geom_line(aes(y=Mean, color=Category), size=0.7) + 
+     geom_ribbon(aes(y = Mean, ymin = Mean - SD, ymax = Mean + SD, fill = Category), alpha = .1)+
+     labs(title = paste("AR6-database", ": welfare metric by rho and weight"),
+          y = "welfare", x = "") + 
+     scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
+     facet_grid( rho ~ weight, scales = "free", labeller=labeller(rho = rho.labs, weight = weight.labs)))
+print(p)
+dev.off()
+
+
 
