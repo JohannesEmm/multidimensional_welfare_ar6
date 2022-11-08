@@ -5,7 +5,7 @@ dir.create("figures")
 
 #subplot per model, rho and weight
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
-names(weight.labs) <- c(paste(weight[1,], sep=" ", collapse=","), paste(weight[2,], sep=" ", collapse=","), paste(weight[3,], sep=" ", collapse=","))
+names(weight.labs) <- c(paste(weights[1][[1]], sep=" ", collapse=","), paste(weights[2][[1]], sep=" ", collapse=","), paste(weights[3][[1]], sep=" ", collapse=","))
 rho.labs <- c("rho:0", "rho:1", "rho:5")
 names(rho.labs) <- c("0", "1", "5")
 
@@ -26,14 +26,14 @@ models=unique(welfares$model)
 					geom_line(aes(year, value, group=interaction(scenario), color=Category)) + 
   					labs(title = paste(m, ": welfare metric by rho and weight"),
        				y = "welfare", x = "") + 
-  					facet_grid( rho ~ weight, labeller=labeller(rho = rho.labs, weight = weight.labs), scales="free")
+  					facet_grid( rho ~ weights, labeller=labeller(rho = rho.labs, weights = weight.labs), scales="free")
 				print(p) 
 			}
 		dev.off()
 	}
 # all scenarios
 theme_set(theme_bw())
-png(file = paste("figures/","AR6_database- all scenarios",".png",sep="")) 
+png(file = paste("figures/","AR6_database- all scenarios - new variables",".png",sep="")) 
 data_m <- filter(welfares, year != "", value != "") %>%
   dplyr::filter(Category!="failed-vetting")%>% 
   filter(!is.na(value)) %>%
@@ -44,14 +44,14 @@ p=(ggplot(data_m ) +
   labs(title = paste("AR6-database", ": welfare metric by rho and weight"),
        y = "welfare", x = "") + 
     scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
-  facet_grid( rho ~ weight, scales = "free", labeller=labeller(rho = rho.labs, weight = weight.labs)))
+  facet_grid( rho ~ weights, scales = "free", labeller=labeller(rho = rho.labs, weights = weight.labs)))
 print(p)
 dev.off()
 
 # all scenarios
 theme_set(theme_bw())
-png(file = paste("figures/","AR6_database- mean across categories",".png",sep="")) 
-data_m <- welfares %>% group_by(Category, year, rho, weight) %>%
+png(file = paste("figures/","AR6_database- mean across categories - new variables",".png",sep="")) 
+data_m <- welfares %>% group_by(Category, year, rho, weights) %>%
   dplyr::summarize(Mean = mean(value, na.rm=TRUE), SD=sd(value, na.rm=TRUE))
 data_m<- data_m %>% 
   drop_na(Mean, SD)
@@ -64,7 +64,7 @@ p=(ggplot(data_m, aes(x = year, group = Category)) +
      labs(title = paste("AR6-database", ": welfare metric by rho and weight"),
           y = "welfare", x = "") + 
      scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
-     facet_grid( rho ~ weight, scales = "free", labeller=labeller(rho = rho.labs, weight = weight.labs)))
+     facet_grid( rho ~ weights, scales = "free", labeller=labeller(rho = rho.labs, weights = weight.labs)))
 print(p)
 dev.off()
 

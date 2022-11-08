@@ -9,6 +9,28 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
 # out has same data as ar6_datadf + columns for: min, max, bad and log for each variable + level of indicator for each variable
 
   out=ar6_datadf; 
+#remove outliers (check script "CheckOutliers.R")
+  #remove all values of population size that is bigger than 100000 million 
+  #(two models have this for four scenarios in total) :
+  out<-out[-which(out$variable=="Population" & out$value > 1*10^5),]
+  #
+  #remove all values of food demand size above 10000 kcal/pc/day
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Food Demand" & out$value > 10000),]
+  #
+  #remove all values with zero food energy supply
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Food Energy Supply" & out$value == 0),]
+  #
+  #remove all values with low land cover
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Land Cover" & out$value < 10000),]
+  #
+  #remove all values with low forest land cover
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Land Cover|Forest" & out$value < 2000),]
+  
+  
 
 # convert per-capita variables:
   out %>% add_column(value_pc = NA)

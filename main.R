@@ -1,5 +1,5 @@
 #setwd('C:/Users/uk/Projects/Navigate/AlternativeWelfareMetrics/github')
-
+setwd('C:/Users/uk/Documents/GitHub/multidimwelfare-scenarios')
 rm(list = ls())
 
 library(ggplot2)
@@ -94,11 +94,11 @@ rho=c(0,1,5);
 # these are a dataframe for different sets of weights: rows are different sets, columns are variables 
 
 
-weight1=c(1,0,0,0.5,0.5,1,100,0,1,0,0,1)
+weight1=c(1,0,0,0.5,0.5,1,100,0,1,0,1,0)
 names(weight1)=variables
-weight2=c(1,0,0,0.5,0.5,1,1  ,0,1,0,0,1)
+weight2=c(1,0,0,0.5,0.5,1,1  ,0,1,0,1,0)
 names(weight2)=variables
-weight3=c(1,0,0,0.5,0.5,1,0.2,0,1,0,0,1)
+weight3=c(1,0,0,0.5,0.5,1,0.2,0,1,0,1,0)
 names(weight3)=variables
 weights=list(a=weight1, b=weight2, c=weight3)
 
