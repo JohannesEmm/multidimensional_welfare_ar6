@@ -45,7 +45,7 @@ ggplot(test_red, aes(y=value, x=model))+geom_point()+scale_y_log10()
 #--> outliers clearly above  10000 (many model versions and scenarios)
 
 #8) Outliers for Food energy supply
-test_red=filter(indicators, variable=="Food Energy Supply" & value>0)
+test_red=filter(indicators, variable=="Food Energy Supply" )
 ggplot(test_red, aes(y=value, x=model))+geom_point()
 #-->  clearly outlier at 0 (IMAGE 3.2 model for a couple of scenarios)
 
@@ -59,7 +59,6 @@ test_red=filter(indicators, variable=="Land Cover")
 ggplot(test_red, aes(y=value_pc, x=model))+geom_point()
 #-->  Since land cover is clearly avove 10000 million ha in the 2000s, 
 # there appear to be 3 outliers below this value (2 models with multiple scenarios)
-# the outliers at 0 value need to be deleted for sure
 
 #11) Outliers for Land Cover| Forest
 test_red=filter(indicators, variable=="Land Cover|Forest")
