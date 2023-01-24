@@ -11,7 +11,7 @@ write.xlsx(write_max, 'max.xlsx')
 #1) Outliers for population
 test_red=filter(ar6_datadf, variable=="Population")
 ggplot(test_red, aes(y=value, x=model))+geom_point()+scale_y_log10()
-#--> outliers clearly above value of 10^ (only 2 model versions and 4 scenarios in total)
+#--> outliers clearly above value of 10^5 (only 2 model versions and 4 scenarios in total)
 
 #2) Outliers for consumption
 test_red=filter(indicators, variable=="Consumption")

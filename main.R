@@ -72,9 +72,9 @@ variables_pop=c("Emissions|Sulfur","Emissions|NOx","Consumption","Emissions|CO2"
 #ensure order of the following list is the same as in (variables_min/max)
 # minimum for both food items is 1827 kcal/cap/day (global average from FAO: https://bit.ly/FoodSecIndicators20 )
 #   value for food energy supply is transformed to EJ/year/cap ( =*4184*365/10^(12) )
-variables_min=c(0, 0.1, NA, NA, NA, NA, 0.1, NA, NA, NA, 0.00279, 1827);
+variables_min=c(0, 0.1, NA, NA, NA, NA,0.1, NA, 0, NA, 0.00279, 1827);
 names(variables_min)=variables
-variables_max=c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA);	
+variables_max=c(NA, NA, NA, NA, NA, NA, NA, NA, 13471, NA, NA, NA);	
 names(variables_max)=variables
 
 #For each variable, the indicator will be added along with minimum, maximum, indicator for bad and log
