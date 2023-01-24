@@ -37,11 +37,17 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
   Category <- data.frame(Category=unlist(ar6_datadf$Category))
   ar6_datadf <- ar6_datadf %>% select(-c("Policy_category", "Policy_category_name", "Category"))
   ar6_datadf <- cbind(ar6_datadf, Policy_category, Policy_category_name, Category)
-  
   #write final data frame as Rdata file
   save(ar6_datadf, variables, file = "ar6_data.Rdata")
+  
+  #now get also regional data
+  ar6_data_regional <- pyam$read_iiasa('ar6-public', model='*', scenario="*", variable=varlist, region='* (R6)', meta=1)
+  ar6_data_regional <- ar6_data_regional$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category", "IMP_marker"))
+  ar6_data_regional <- py_to_r(ar6_data_regional)
+  save(ar6_data_regional, file = "ar6_data_regional.Rdata")  
 }else{
   load("ar6_data.Rdata")
+  load("ar6_data_regional.Rdata")
 }
 
 #some diagnostics plots
@@ -52,23 +58,15 @@ print(ggplot(ar6_datadf %>% dplyr::filter(Category!="failed-vetting" & Category!
 
 
 #get regional data (R6) regions
-require(reticulate)
-pyam <- import("pyam", convert = FALSE)
-#explore the source
-conn = pyam$iiasa$Connection('ar6-public')
-
-ar6_data_regional <- pyam$read_iiasa('ar6-public', model='*', scenario="*", variable=varlist, region='* (R6)', meta=1)
-ar6_data_regional <- ar6_data_regional$as_pandas(meta_cols = c("Ssp_family", "Policy_category", "Policy_category_name", "Category", "IMP_marker"))
-ar6_data_regional <- py_to_r(ar6_data_regional)
 #get per capital values
 ar6_data_regional <- ar6_data_regional %>% left_join(ar6_data_regional %>% filter(variable=="Population") %>% select(-variable,-unit) %>% rename(Population=value))
 #remove outliers
 ar6_data_regional <- ar6_data_regional %>% filter(Population < 1*10^5 & !(variable=="Food Demand" & value > 10000) & !(variable=="Food Energy Supply" & value == 0) & !(variable=="Land Cover" & value < 10000) & !(variable=="Land Cover|Forest" & value < 2000))
-
+#compute per capita values
 ar6_data_regional <- ar6_data_regional %>% mutate(valuepc=value/Population)
 #get extrema
 ar6_data_regional_extremes <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(valuepc, na.rm = T), max=max(valuepc, na.rm = T))
 print(ar6_data_regional_extremes)
-save(ar6_data_regional_extremes, file = "ar6_data_regional_extremes.Rdata")                     
+                   
 
      
