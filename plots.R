@@ -11,26 +11,26 @@ names(rho.labs) <- c("0", "1", "5")
 
 
 models=unique(welfares$model)
-	for( m in models){	
-		data_m <- filter(welfares, year != "", value != "") %>%
-	  	dplyr::filter(Category!="failed-vetting")%>% 
-  		filter(!is.na(value)) %>%
-  		filter(!is.na(model), model == m) 
-		data_m$value<-as.numeric(data_m$value) 
-		#remove "/" from model name for saving
-			name=str_replace_all(string=m, pattern="/", repl="_")
-			png(file = paste("figures/",name,".png",sep="")) 	
-		#plot if welfare levels available
-		 			if(dim(data_m)[1]>0){
-				p= 	ggplot(data_m ) +
-					geom_line(aes(year, value, group=interaction(scenario), color=Category)) + 
-  					labs(title = paste(m, ": welfare metric by rho and weight"),
-       				y = "welfare", x = "") + 
-  					facet_grid( rho ~ weights, labeller=labeller(rho = rho.labs, weights = weight.labs), scales="free")
-				print(p) 
-			}
-		dev.off()
-	}
+#	for( m in models){	
+#data_m <- filter(welfares, year != "", value != "") %>%
+#	  	dplyr::filter(Category!="failed-vetting")%>% 
+#  		filter(!is.na(value)) %>%
+#  		filter(!is.na(model), model == m) 
+#     data_m$value<-as.numeric(data_m$value) 
+#		#remove "/" from model name for saving
+#			name=str_replace_all(string=m, pattern="/", repl="_")
+#			png(file = paste("figures/",name,".png",sep="")) 	
+#		#plot if welfare levels available
+#		 			if(dim(data_m)[1]>0){
+#				p= 	ggplot(data_m ) +
+#					geom_line(aes(year, value, group=interaction(scenario), color=Category)) + 
+# 					labs(title = paste(m, ": welfare metric by rho and weight"),
+#       				y = "welfare", x = "") + 
+#  					facet_grid( rho ~ weights, labeller=labeller(rho = rho.labs, weights = weight.labs), scales="free")
+#				print(p) 
+#			}
+#		dev.off()
+#	}
 # all scenarios
 theme_set(theme_bw())
 png(file = paste("figures/","AR6_database- all scenarios - new variables",".png",sep="")) 
