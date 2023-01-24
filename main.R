@@ -1,5 +1,5 @@
 #setwd('C:/Users/uk/Projects/Navigate/AlternativeWelfareMetrics/github')
-setwd('C:/Users/uk/Documents/GitHub/multidimwelfare-scenarios')
+#setwd('C:/Users/uk/Documents/GitHub/multidimwelfare-scenarios')
 rm(list = ls())
 
 library(ggplot2)
