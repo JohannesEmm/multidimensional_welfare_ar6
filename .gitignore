@@ -35,5 +35,9 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+min.xlsx
+min_max.xlsx
+plots.R
+plots.R
 
 figures/*
