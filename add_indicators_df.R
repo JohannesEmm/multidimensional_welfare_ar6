@@ -9,10 +9,29 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
 # out has same data as ar6_datadf + columns for: min, max, bad and log for each variable + level of indicator for each variable
 
   out=ar6_datadf; 
+
+# convert per-capita variables:
+  out %>% add_column(value_pc = NA)
+  out$value_pc=out$value
+  # retrieve population data
+  matrix_pop=out[out$variable=="Population",]
+  values=out$value/matrix_pop$value[match(out$identifier, matrix_pop$identifier)] 
+  #replace variables to be converted with per-capita value
+  out$value_pc[which(out$variable %in% variables_pop)]=values[which(out$variable %in% variables_pop)]
+  
 #remove outliers (check script "CheckOutliers.R")
   #remove all values of population size that is bigger than 100000 million 
   #(two models have this for four scenarios in total) :
   out<-out[-which(out$variable=="Population" & out$value > 1*10^5),]
+  #
+  #remove all values of GPD and consumption below 0.1
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Consumption" & out$value_pc <0.1),]
+  out<-out[-which(out$variable=="GDP|PPP" & out$value_pc <0.1),]
+  #
+  #remove all values of GPD and consumption below 0.1
+  #(many scenarios removed) :
+  out<-out[-which(out$variable=="Final Energy|Electricity" & out$value_pc <10^(-4)),]
   #
   #remove all values of food demand size above 10000 kcal/pc/day
   #(many scenarios removed) :
@@ -31,15 +50,6 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
   out<-out[-which(out$variable=="Land Cover|Forest" & out$value < 2000),]
   
   
-
-# convert per-capita variables:
-  out %>% add_column(value_pc = NA)
-  out$value_pc=out$value
-  # retrieve population data
-  matrix_pop=out[out$variable=="Population",]
-  values=out$value/matrix_pop$value[match(out$identifier, matrix_pop$identifier)] 
-  #replace variables to be converted with per-capita value
-  out$value_pc[which(out$variable %in% variables_pop)]=values[which(out$variable %in% variables_pop)]
   
 # find minima and maxima
   
@@ -72,8 +82,7 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
   out$log= 1*(out$variable %in% variables_log)+0;
   
   # remove all data points with variable below minimum 
-  vec=out$value_pc-out$min<0
-  out<-out[-which(vec),]
+  out<- out  %>% filter (!(value_pc-min<0) )
   
 # compute indicator
   # first for variables that are logged

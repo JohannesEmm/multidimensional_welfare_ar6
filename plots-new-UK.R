@@ -34,7 +34,7 @@ dir.create("figures")
   p=(ggplot(data_m ) +
        geom_line(aes(year, value, group=interaction(model,scenario)), alpha = 0.7) + 
        labs(title = paste("AR6-database:", "variables for welfare metric"),
-            y = "", x = "") + 
+            y = "", x = "Time") + 
        scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
        facet_wrap( ~ variable, scales = "free", ncol=4)+ theme(text = element_text(size = 200)))
   print(p)
@@ -88,7 +88,8 @@ dir.create("figures")
   
   data_plot= data_plot%>%
     dplyr::filter(Category!="failed-vetting")
-  #df_test=filter(indicators, Category=="C1" & variable=="GDP|PPP" & b_welfare >0 & year=="2100")
+  #df_test=filter(indicators, Category=="C8" & variable=="GDP|PPP" & b_welfare >0 & year=="2030")
+  # in  2030,2060,2100:
   #C1 has 13 scenarios
   #C2 has 25 scenarios
   #C3 has 60 scenarios
@@ -97,8 +98,9 @@ dir.create("figures")
   #C6 has 18 scenarios
   #C7 has 24 scenarios
   #C8 has 1 scenario
+  #failed vetting: 56 scenarios
   
-###########################################################################################
+ ###########################################################################################
 ############### plot indicators and welfare with jitter for selected years################
 ###########################################################################################
 
