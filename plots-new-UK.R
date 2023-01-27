@@ -214,7 +214,7 @@ p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category))) +
      labs(title = paste("AR6-database:", "welfare metric by rho and weight"),
           y = "", x = "")  + 
      scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"))+
-     ggh4x::facet_grid2( rho ~ weights, scales = "free_y", independent = "y", labeller=labeller(rho = rho.labs, weights = weight.labs))+
+     facet_grid( rho ~ weights, scales = "free_y", labeller=labeller(rho = rho.labs, weights = weight.labs))+
      scale_color_brewer(palette="BrBG")+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
      scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
 print(p)
