@@ -6,9 +6,12 @@ combined_data <- welfares %>% left_join(ar6_datadf %>% select(-unit) %>% pivot_w
 ggplot(combined_data %>% filter(year %in% c(2050, 2100) & Category!="failed-vetting")) + geom_point(aes(`GDP|PPP`/Population, value, color=Category)) + facet_wrap(year ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index")
 ggsave("figures/Index GDP Scatter.png", width=8, height = 5)
 
+ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting")) + geom_point(aes(`GDP|PPP`/Population, value, color=Category)) + facet_wrap(rho ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + ylim(0,1)
+ggsave("figures/Index GDP Scatter for rho 2100.png", width=8, height = 5)
 
-ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting")) + geom_point(aes(`GDP|PPP`/Population, `AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, color=value)) + facet_wrap(year ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="GMT Increase") + scale_colour_gradient(low = "red", high = "blue")
-ggsave("figures/Temp GDP Scatter.png", width=8, height = 5)
+
+ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting")) + geom_point(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=as.factor(rho))) + facet_wrap(year ~ .) + labs(x="GMT increase by 2100", y="Welfare index", color="rho") + theme(legend.position="bottom") + geom_smooth(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=as.factor(rho)), method="lm")  + ylim(0,1)
+ggsave("figures/Temp Welfare Index.png", width=8, height = 5)
 
 
 
@@ -44,14 +47,5 @@ ggsave("figures/Temp GDP Scatter indicators.png", width=8, height = 5)
 
 
 
-#TO DO FOR THURSDAY:
 
 
-1) send min max based on R5 to Rike
-2) scatters with parameter values/rho
-3) update scatter.smooth(
-  
-  
-  
-  
-)
