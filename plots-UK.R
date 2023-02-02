@@ -1,10 +1,10 @@
 # this plots the welfare data, run 'main.R' first
 # saves in subfolder "figures"
+dir.create("figures")
+
 
 library("RColorBrewer")
 
-
-dir.create("figures")
 
 
   
@@ -19,14 +19,14 @@ dir.create("figures")
     filter(variable !="Land Cover")%>%
     dplyr::filter(Category!="failed-vetting")
   
-  data_m$variable[data_m$variable == "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile"]="Temperature [K]"
-  data_m$variable[data_m$variable == "Final Energy|Electricity"]="Energy|Electricity [EJ/yr]"
-  data_m$variable[data_m$variable == "Emissions|NOx"]="Emissions|NOx [Mt NO2/yr]"
-  data_m$variable[data_m$variable == "Emissions|Sulfur"]="Emissions|Sulfur [Mt SO2/yr]"
-  data_m$variable[data_m$variable == "GDP|PPP"]="GDP|PPP [billion Int$2010/yr]"
+  data_m$variable[data_m$variable == "Temperature"]="Temperature [K]"
+  data_m$variable[data_m$variable == "Electricity"]="Electricity [EJ/yr]"
+  data_m$variable[data_m$variable == "NOx Emissions"]="NOx Emissions [Mt NO2/yr]"
+  data_m$variable[data_m$variable == "Sulfur Emissions"]="Sulfur Emissions [Mt SO2/yr]"
+  data_m$variable[data_m$variable == "GDP"]="GDP [billion Int$2010/yr]"
   data_m$variable[data_m$variable == "Population"]="Population [Million]"
-  data_m$variable[data_m$variable == "Food Energy Supply"]="Food Energy Supply [EJ/yr]"
-  data_m$variable[data_m$variable == "Land Cover|Forest"]="Land Cover|Forest [million ha]"
+  data_m$variable[data_m$variable == "Food Supply"]="Food Supply [EJ/yr]"
+  data_m$variable[data_m$variable == "Forest Cover"]="Forest Cover [million ha]"
   
   theme_set(theme_bw())
   png(file = paste("figures/","AR6_database- variables",".png",sep=""), width = 12000, height = 12000, units = "px") 
@@ -239,7 +239,7 @@ theme_set(theme_bw())
 png(file = paste("figures/","AR6_database welfares",".png",sep=""), width = 1200, height = 1200, units = "px") 
 p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
      theme_bw() + 
-     geom_rect(xmin = 8.5, xmax = 16.5, ymin = -0.5, ymax = 1.5,
+     geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
                fill = 'snow2', alpha = 0.05) +
      geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, cex=2) +
      labs(title = paste("AR6-database:", "welfare metric by rho and weight"),

@@ -81,7 +81,6 @@ names(variables_max)=variables
 indicators=add_indicators_df(ar6_datadf, variables_log, variables_bad, variables_pop, variables_min, variables_max)
 
 
-
 ####################################################################################################    
 ##########################     normative parameters     ############################################
 ####################################################################################################    
@@ -110,6 +109,26 @@ weights=list(a=weight1, b=weight2, c=weight3)
 
 
 welfares=compute_welfare_df(indicators, rho, weights)
+
+welfares <- welfares %>%
+  filter(Category!="C8")%>%
+  dplyr::filter(Category!="failed-vetting")
+
+###############################rename variables#####################################################
+
+indicators$variable[indicators$variable == "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile"]="Temperature"
+indicators$variable[indicators$variable == "Final Energy|Electricity"]="Electricity"
+indicators$variable[indicators$variable == "Emissions|NOx"]="NOx Emissions"
+indicators$variable[indicators$variable == "Emissions|Sulfur"]="Sulfur Emissions"
+indicators$variable[indicators$variable == "GDP|PPP"]="GDP"
+indicators$variable[indicators$variable == "Population"]="Population"
+indicators$variable[indicators$variable == "Food Energy Supply"]="Food Supply"
+indicators$variable[indicators$variable == "Land Cover|Forest"]="Forest Cover"
+
+
+
+
+
 
 
 ar6_datadf$identifier<-NULL
