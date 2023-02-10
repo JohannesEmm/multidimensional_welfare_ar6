@@ -17,7 +17,7 @@ library("RColorBrewer")
     filter(variable !="Emissions|CO2")%>%
     filter(variable !="Food Demand")%>%
     filter(variable !="Land Cover")%>%
-    dplyr::filter(Category!="failed-vetting")
+    dplyr::filter(Category!="failed-vetting", Category!="NaN", Category!="no-climate-assessment")
   
   data_m$variable[data_m$variable == "Temperature"]="Temperature [K]"
   data_m$variable[data_m$variable == "Electricity"]="Electricity [EJ/yr]"
@@ -29,14 +29,15 @@ library("RColorBrewer")
   data_m$variable[data_m$variable == "Forest Cover"]="Forest Cover [million ha]"
   
   theme_set(theme_bw())
-  png(file = paste("figures/","AR6_database- variables",".png",sep=""), width = 12000, height = 12000, units = "px") 
+  png(file = paste("figures/","AR6_database- variables",".png",sep=""), width = 6000, height = 6000, units = "px") 
   
   p=(ggplot(data_m ) +
-       geom_line(aes(year, value, group=interaction(model,scenario)), alpha = 0.7) + 
+       geom_line(aes(year, value, group=interaction(model,scenario), color=Category), alpha = 0.7) + 
        labs(title = paste("AR6-database:", "variables for welfare metric"),
             y = "", x = "Time") + 
        scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
-       facet_wrap( ~ variable, scales = "free", ncol=4)+ theme(text = element_text(size = 200)))
+       scale_color_brewer(palette="BrBG")+
+       facet_wrap( ~ variable, scales = "free", ncol=4)+ theme(text = element_text(size = 100), legend.key.size = unit(10,"line")))
   print(p)
   dev.off()  
   
