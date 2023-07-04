@@ -68,13 +68,35 @@ test_red=filter(indicators, variable=="Land Cover|Forest")
 ggplot(test_red, aes(y=value_pc, x=model))+geom_point()
 #-->  clearly, there are outliers for one model below 2000 (1 model)
 
+##### add forest share to indicators
+
+indicators <- indicators %>% left_join(indicators %>% filter(variable=="Land Cover") %>% select(-variable,-unit,-value_pc, -min, -max, -bad, -log, -indicator) %>% rename(land_cover=value))
+indicators <- indicators %>% mutate(forest_share=value/land_cover)
+
+#get minima and maxima of forest share in global data
+indicators_extremes <- indicators %>% group_by(variable) %>% summarize(min=min(forest_share, na.rm = T), max=max(forest_share, na.rm = T))
+print(indicators_extremes)
+
+
+
 
 ##############################################################################################
 ############################## outliers regional data frame ##################################
 ##############################################################################################
 load('ar6_data_regional.Rdata')
+
+#include column with per capita values
 ar6_data_regional <- ar6_data_regional %>% left_join(ar6_data_regional %>% filter(variable=="Population") %>% select(-variable,-unit) %>% rename(Population=value))
 ar6_data_regional <- ar6_data_regional %>% mutate(valuepc=value/Population)
+#include column with forest as share of land
+# converting to share of land covered by forest:
+
+ar6_data_regional <- ar6_data_regional %>% left_join(ar6_data_regional %>% filter(variable=="Land Cover") %>% select(-variable,-unit,-valuepc) %>% rename(land_cover=value))
+ar6_data_regional <- ar6_data_regional %>% mutate(forest_share=value/land_cover)
+
+
+
+
 
 #1) Outliers for population
 test_red=filter(ar6_data_regional, variable=="Population")
@@ -138,20 +160,37 @@ ggplot(test_red, aes(y=valuepc, x=model, color=region))+geom_point()+scale_y_log
 test_red=filter(ar6_data_regional, variable=="Land Cover")
 ggplot(test_red, aes(y=value, x=model, color=region))+geom_point()
 #-->  no clear outliers
+#something is going on with C3IAM 1.0
+test_red=filter(ar6_data_regional, variable=="Land Cover" & model=="C3IAM 1.0")
+ggplot(test_red, aes(y=value, x=year,group=interaction(scenario, region), color=region))+geom_line()
+#--> land value has diverging starting points and changes tremendously over time, need to be careful with that. 
+# C3IAM 1.0 does not provide any Forest land cover, so ignoring now.
+#Checking whether land cover is somehow net of forest land cover:
+test_red=filter(ar6_data_regional, model=="C3IAM 1.0" & variable %in% c("Land Cover","Land Cover|Forest"))
+test_red <- test_red %>% left_join(test_red %>% filter(variable=="Land Cover") %>% select(-variable,-unit) %>% rename(land_cover=value))
 
 #11) Outliers for Land Cover| Forest
 test_red=filter(ar6_data_regional, variable=="Land Cover|Forest")
 ggplot(test_red, aes(y=value, x=model, color=region))+geom_point()
 #-->  no clear outliers
 
+#11b) share of land covered by forest:
+test_red=filter(ar6_data_regional, variable=="Land Cover|Forest")
+ggplot(test_red, aes(y=forest_share, x=model, color=region))+geom_point()
+#--> no clear outliers
 
 
 ar6_data_regional <- ar6_data_regional %>% filter(Population < 1*10^5 & !(variable=="Food Demand" & value>5000) & !(variable=="Final Energy|Electricity" & valuepc <2*10^(-4))  & !(variable=="Consumption" & valuepc <0.1) & !(variable=="GDP|PPP" & valuepc <0.2)& !(variable=="Food Energy Supply" & valuepc <0.001)  )
 #get extrema
+#get minima and maxima of variables that are per capita
 ar6_data_regional_extremes_pc <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(valuepc, na.rm = T), max=max(valuepc, na.rm = T))
 print(ar6_data_regional_extremes_pc)
-
+#get minima and maxima of variables that are absolute in value
 ar6_data_regional_extremes <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(value, na.rm = T), max=max(value, na.rm = T))
+print(ar6_data_regional_extremes)
+
+#get minima and maxima of forest share
+ar6_data_regional_extremes <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(forest_share, na.rm = T), max=max(forest_share, na.rm = T))
 print(ar6_data_regional_extremes)
 
 
