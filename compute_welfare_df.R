@@ -20,7 +20,9 @@ compute_welfare_df <- function(indicators, rho, weights)
   out$identifier<-NULL
   out$indicator<-NULL
   out$rho=NA
-  out$weights=NA
+  #add column for weight in each scenario
+  weight_columns=paste("weight",colnames(weights), sep="_")
+  out[, weight_columns]=NA
   
   #this function return TRUE if the specific list of variables contains all 
   #variables with positive weight
@@ -29,9 +31,9 @@ compute_welfare_df <- function(indicators, rho, weights)
   }
   
   #go through welfare parameters and compute welfare metric
-  for (w in 1:length(weights)[1]){
-    ws=weights[w][[1]];
-   #reduce number of scenarios to those which have all variables with positive weight:
+  for (w in 1:dim(weights)[1]){
+    ws=weights[w,];
+    #reduce number of scenarios to those which have all variables with positive weight:
     #convert weights to dataframe to merge with  all_indicators 
     weight_loc=data.frame(variable=names(ws), weight=unlist(ws))
     #normalize weights:
@@ -49,7 +51,7 @@ compute_welfare_df <- function(indicators, rho, weights)
     weight_loc=data.table(weight_loc, key="variable")
     all_indicators=all_indicators[weight_loc]
     #create column with weights
-    all_indicators$weights=paste(ws, sep=" ", collapse=",")
+    all_indicators[,weight_columns]=ws
     
     for (r in rho){
       all_indicators$rho=r

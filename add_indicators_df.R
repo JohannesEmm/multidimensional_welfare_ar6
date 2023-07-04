@@ -19,6 +19,15 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
   #replace variables to be converted with per-capita value
   out$value_pc[which(out$variable %in% variables_pop)]=values[which(out$variable %in% variables_pop)]
   
+# convert forest land cover to share:
+  out <- out %>% left_join(out %>% filter(variable=="Land Cover") %>% select(-variable,-unit,-value_pc) %>% rename(land_cover=value))
+  out <- out %>% mutate(forest_share=value/land_cover)
+  out$value_pc <- ifelse(out$variable =="Land Cover|Forest" , out$forest_share,out$value_pc)
+  
+  #delete added columns
+  out$land_cover<-NULL
+  out$forest_share<-NULL
+  
 #remove outliers (check script "CheckOutliers.R")
   #remove all values of population size that is bigger than 100000 million 
   #(two models have this for four scenarios in total) :
