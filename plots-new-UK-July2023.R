@@ -16,30 +16,30 @@ dir.create("figures")
     filter(variable !="Consumption")%>%
     filter(variable !="Emissions|CO2")%>%
     filter(variable !="Food Demand")%>%
-
-    dplyr::filter(Category!="failed-vetting")
+    filter(variable !="Land Cover")%>%
+    dplyr::filter(Category!="failed-vetting")%>%
+    dplyr::filter(Category!="no-climate-assessment")%>%
+    dplyr::filter(Category!="NaN")
   
   data_m$variable[data_m$variable == "Temperature"]="Temperature [K]"
   data_m$variable[data_m$variable == "Electricity"]="Electricity [EJ/yr]"
   data_m$variable[data_m$variable == "NOx Emissions"]="NOx Emissions [Mt NO2/yr]"
-  data_m$variable[data_m$variable == "Emissions|Sulfur"]="Sulfur Emissions [Mt SO2/yr]"
+  data_m$variable[data_m$variable == "Sulfur Emissions"]="Sulfur Emissions [Mt SO2/yr]"
   data_m$variable[data_m$variable == "GDP"]="GDP [billion Int$2010/yr]"
   data_m$variable[data_m$variable == "Population"]="Population [Million]"
   data_m$variable[data_m$variable == "Food Supply"]="Food Supply [EJ/yr]"
-  data_m$variable[data_m$variable == "Land Cover"]="Land Cover [million ha]"
   data_m$variable[data_m$variable == "Forest Cover"]="Forest Cover [million ha]"
   
   theme_set(theme_bw())
   png(file = paste("figures/","AR6_database- variables",".png",sep=""), width = 12000, height = 12000, units = "px") 
   
-  p=(ggplot(data_m ) +
-       geom_line(aes(year, value, group=interaction(model,scenario)), alpha = 0.7) + 
+  p=(ggplot(data_m) +
+       geom_line(aes(x=year, y=value, color=Category, group=interaction(model,scenario)), alpha = 0.7) + 
        labs(title = paste("AR6-database:", "variables for welfare metric"),
             y = "", x = "Time") + 
        scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
-       facet_wrap( ~ variable, scales = "free", ncol=4)+ theme(text = element_text(size = 200))+
-       scale_color_brewer(palette="BrBG")+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
-       scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28)))
+       facet_wrap( ~ variable, scales = "free", ncol=4)+
+       scale_color_brewer(palette="BrBG")+ scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 200)))
   print(p)
   dev.off()  
   
