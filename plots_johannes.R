@@ -38,7 +38,7 @@ combined_data_based_on_indicators <- welfares %>% left_join(indicators %>% selec
 
 
 
-ggradar(combined_data_based_on_indicators %>% mutate(group=paste(model, scenario)) %>% filter(year==2100) %>% select(-`Food Demand`) %>% select(26, 7, 15:25) %>% rename(Welfare=value) %>% tail(50000),  plot.legend = F, group.point.size = 1, group.line.width = 1)
+ggradar(combined_data_based_on_indicators %>% select(-`Emissions|CO2`, -Consumption, -Population, -`Land Cover`, -`Food Demand`) %>% mutate(group=paste(model, scenario)) %>% filter(year==2100) %>% select(22, 7, 15:21) %>% rename(Welfare=value) %>% tail(50000),  plot.legend = F, group.point.size = 1, group.line.width = .1)
 ggsave("figures/Radar Plot.png", width=8, height = 6)
 
 #ggplot(combined_data_based_on_indicators %>% filter(year %in% c(2100) & Category!="failed-vetting")) + geom_point(aes(`GDP|PPP`, value, color=Category)) + facet_wrap(year ~ .) + labs(x="GDP per capita Index", y="Welfare index")

@@ -2,9 +2,9 @@
 # saves in subfolder "figures"
 
 library("RColorBrewer")
+library(tidyverse)
 
-
-dir.create("figures")
+if(!dir.exists("figures")) dir.create("figures")
 
 
   
