@@ -71,7 +71,7 @@ if(!dir.exists("figures")) dir.create("figures")
   welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
   #pick which welfare parameters to choose:
   welfare_plot= welfares_plot %>%
-    filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.1666666667)==5) #equal weights and some substitutability
+    filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5) #equal weights and some substitutability
   #for that remove non matching columns
   welfare_plot$variable="Welfare"
   welfare_plot$rho<- NULL
@@ -191,7 +191,7 @@ welfares_plot=welfares
 welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
 #pick which welfare parameters to choose:
 welfare_plot= welfares_plot %>%
-  filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.1666666667)==5) #equal weights and some substitutability
+  filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5) #equal weights and some substitutability
 
 
 #welfare_base <- subset(welfares,rho==1&weights=="1,0,0,0.5,0.5,1,1,0,1,0,1,0")
@@ -277,6 +277,43 @@ p <- grid.arrange(PTemperature2030, PTemperature2060, PTemperature2100, PGDP2030
                                                                                               c(20,21,22,NA,23,24,25,NA,NA)))
 print(p)
 dev.off()
+
+
+#########################################################################################
+##################################### plot welfare for selected years ####################################
+###########################################################################################
+
+#subplot per rho and weight
+weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
+names(weight.labs) <- c(paste(weights[1][[1]], sep=" ", collapse=","), paste(weights[2][[1]], sep=" ", collapse=","), paste(weights[3][[1]], sep=" ", collapse=","))
+rho.labs <- c("rho:0", "rho:1", "rho:5")
+names(rho.labs) <- c("0", "1", "5")
+
+welf_plot_red= welfares %>%
+  filter(year %in% c(2030,2060,2100) & !is.na(weights))
+welf_plot_red$yearcat=as.factor(paste(welf_plot_red$year, welf_plot_red$Category))
+
+data_m <- welf_plot_red%>%
+  dplyr::filter(Category!="failed-vetting")
+
+theme_set(theme_bw())
+png(file = paste("figures/","AR6_database welfares",".png",sep=""), width = 1200, height = 1200, units = "px") 
+p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
+     theme_bw() + 
+     geom_rect(xmin = 8.5, xmax = 16.5, ymin = -0.5, ymax = 1.5,
+               fill = 'snow2', alpha = 0.05) +
+     geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, cex=2) +
+     labs(title = paste("AR6-database:", "welfare metric by rho and weight"),
+          y = "", x = "")  + 
+     scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"))+
+     facet_grid( rho ~ weights, scales = "free_y", labeller=labeller(rho = rho.labs, weights = weight.labs))+
+     scale_color_brewer(palette="BrBG")+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
+     scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
+print(p)
+dev.off()
+
+
+
 
 
 

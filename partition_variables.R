@@ -81,22 +81,25 @@ partition_variables <- function(variables, vars_with_pos_weights, rel_weights, y
   #normalizing
   normalized_weights=all_weights/(rowSums(all_weights))*1
   #removing duplicates
-  normalized_weights=unique(normalized_weights)
-  colnames(normalized_weights)<-red_vars
+  row_sub=!duplicated(normalized_weights)
+  ##Subset as usual
+  all_weights=all_weights[row_sub,]
+  
+  colnames(all_weights)<-red_vars
   
   #if both nox and sox emissions are present:
   #adding Nox variable with half the weight:
   
   if(yes_snox==1)
   {
-    final_weights=normalized_weights
+    final_weights=all_weights
     
     id=which(colnames(final_weights)=="Emissions|Sulfur")
-    final_weights[,id]=normalized_weights[,id]/2
+    final_weights[,id]=final_weights[,id]/2
     final_weights=as.data.frame(final_weights)
-    final_weights[,"Emissions|NOx"]<- normalized_weights[,id]/2
+    final_weights[,"Emissions|NOx"]<- final_weights[,id]
   }else
-  {final_weights=as.data.frame(normalized_weights)}
+  {final_weights=as.data.frame(all_weights)}
   
   #add all variables with zero weight that are not in vars_with_pos_weights but are in variables
   final_weights[,variables[!(variables %in% vars_with_pos_weights)]]<-0
