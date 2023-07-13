@@ -1,10 +1,27 @@
 # this plots the welfare data, run 'main.R' first
 # saves in subfolder "figures"
 
+rm(list = ls())
+
+### if welfares already exist, just load Rdata file
+### if welfares exist, indicator.Rdata and weights.Rdata is assumed to exist as well, so this will also load
+
+if(!file.exists("welfares.Rdata"))
+{
+print('Run main.R file first')
+  
+}else{
+  load("indicators.Rdata")
+  load("welfares.Rdata")
+  load("weights.Rdata")
+}
+
+
 library("RColorBrewer")
 library(tidyverse)
+library(dplyr)
 
-if(!dir.exists("figures")) dir.create("figures")
+if(!dir.exists("figures")){dir.create("figures")}
 
 
   
@@ -71,7 +88,7 @@ if(!dir.exists("figures")) dir.create("figures")
   welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
   #pick which welfare parameters to choose:
   welfare_plot= welfares_plot %>%
-    filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5) #equal weights and some substitutability
+    filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5& rowSums(welfares_plot[,c(15,20)]==0.005)==2) #equal weights and some substitutability
   #for that remove non matching columns
   welfare_plot$variable="Welfare"
   welfare_plot$rho<- NULL
@@ -87,7 +104,7 @@ if(!dir.exists("figures")) dir.create("figures")
   indicators_plot$value_pc<-NULL
   indicators_plot$identifier<-NULL
   
-  data_plot=rbind(indicators_plot,welfare_plot, fill=TRUE)
+  data_plot=bind_rows(indicators_plot,welfare_plot)
   
   data_plot= data_plot%>%
     dplyr::filter(Category!="failed-vetting")
@@ -191,8 +208,7 @@ welfares_plot=welfares
 welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
 #pick which welfare parameters to choose:
 welfare_plot= welfares_plot %>%
-  filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5) #equal weights and some substitutability
-
+  filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5& rowSums(welfares_plot[,c(15,20)]==0.005)==2) #equal weights and some substitutability
 
 #welfare_base <- subset(welfares,rho==1&weights=="1,0,0,0.5,0.5,1,1,0,1,0,1,0")
 welfare_base=welfare_plot
