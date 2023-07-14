@@ -84,11 +84,9 @@ if(!dir.exists("figures")){dir.create("figures")}
   
   # ammend the welfare to data_plot
   welfares_plot=welfares
-  #round weight levels to be able to filter properly:
-  welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
-  #pick which welfare parameters to choose:
+  # pick which welfare parameters to choose:
   welfare_plot= welfares_plot %>%
-    filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5& rowSums(welfares_plot[,c(15,20)]==0.005)==2) #equal weights and some substitutability
+    filter(rho==1 & weights=="1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0") #equal weights and some substitutability
   #for that remove non matching columns
   welfare_plot$variable="Welfare"
   welfare_plot$rho<- NULL
@@ -204,13 +202,10 @@ write_xlsx(df2, 'AR6-summary.xlsx')
 
 # ammend the welfare to data_plot
 welfares_plot=welfares
-#round weight levels to be able to filter properly:
-welfares_plot[, c(14,15,16,17,18,19,20)]= round(welfares[, c(14,15,16,17,18,19,20)],10)
 #pick which welfare parameters to choose:
 welfare_plot= welfares_plot %>%
-  filter(rho==1 & rowSums(welfares_plot[,c(14,16,17,18,19)]==0.01)==5& rowSums(welfares_plot[,c(15,20)]==0.005)==2) #equal weights and some substitutability
+  filter(rho==1 & weights=="1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0") #equal weights and some substitutability
 
-#welfare_base <- subset(welfares,rho==1&weights=="1,0,0,0.5,0.5,1,1,0,1,0,1,0")
 welfare_base=welfare_plot
 welfare_base <- filter(welfare_base, year != "", value != "", Category != "failed-vetting") %>%
   dplyr:: filter(!is.na(value)) %>% 
@@ -301,12 +296,12 @@ dev.off()
 
 #subplot per rho and weight
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
-names(weight.labs) <- c(paste(weights[1][[1]], sep=" ", collapse=","), paste(weights[2][[1]], sep=" ", collapse=","), paste(weights[3][[1]], sep=" ", collapse=","))
+names(weight.labs) <- c("1, 0, 0, 0.5, 0.5, 1, 100, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0")
 rho.labs <- c("rho:0", "rho:1", "rho:5")
 names(rho.labs) <- c("0", "1", "5")
 
 welf_plot_red= welfares %>%
-  filter(year %in% c(2030,2060,2100) & !is.na(weights))
+  filter(year %in% c(2030,2060,2100) & weights %in% c("1, 0, 0, 0.5, 0.5, 1, 100, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0"))
 welf_plot_red$yearcat=as.factor(paste(welf_plot_red$year, welf_plot_red$Category))
 
 data_m <- welf_plot_red%>%

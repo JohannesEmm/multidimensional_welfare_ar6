@@ -96,17 +96,20 @@ if(!file.exists("welfares.Rdata"))
   #substitutability between dimensions of welfare metric
   rho=c(0,1,5);
   
-  #welfare weights: specify relative weights of each dimension
-  #list of variables that receive positive weight:
+  # welfare weights: specify relative weights of each dimension
+  # list of variables that receive positive weight:
   vars_with_pos_weights=c("AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile", "Emissions|NOx" , "Emissions|Sulfur", "Final Energy|Electricity" , "GDP|PPP", "Land Cover|Forest" ,"Food Energy Supply");
-  #specify relative weights:
+  # specify relative weights:
   rel_weights=c(100,1,0.01);
-  #specify wether nox and sox should be put into 1 category, thus receiving each half the weight
+  # specify wether nox and sox should be put into 1 category, thus receiving each half the weight
   yes_snox=1;
   
-  weights=partition_variables(variables,vars_with_pos_weights,rel_weights,yes_snox)
+  weights1=partition_variables(variables,vars_with_pos_weights,rel_weights,yes_snox)
   
+  # put weights in original order of variables
+  weights=weights1[,variables]
   
+   
   ####################################################################################################    
   ###############################     compute welfare     ############################################
   ####################################################################################################    
@@ -126,7 +129,13 @@ if(!file.exists("welfares.Rdata"))
   # add column that identifies the scenario with (NOT IMPLEMENTED region and) time
   welfares$identifier <- paste(welfares$model, welfares$scenario, sep="XXX")
   
-  # add column to identify the low, equal, and high gdp weight scenario:
+  # add column that identifies weights
+  welfares = welfares %>% unite(col="weights",c(14:25), sep = ", ", remove = FALSE, na.rm = FALSE)
+  
+  #save output
+  save(welfares, file = "welfares.Rdata") 
+  
+  # save selected weights with low, equal, and high gdp as extra dataframe:
   weight1=c(1,0,0,0.5,0.5,1,100,0,1,0,1,0)
   names(weight1)=variables
   weight2=c(1,0,0,0.5,0.5,1,1  ,0,1,0,1,0)
@@ -137,15 +146,6 @@ if(!file.exists("welfares.Rdata"))
   weights=list(a=weight1, b=weight2, c=weight3)
   save(weights, file = "weights.Rdata") 
   
-  
-  welfares[,"weights"]=NA;
-  
-  welfares$weights[rowSums(welfares[,c(14,16,17,18,19)]==0.01)==5 & rowSums(welfares[,c(15,20)]==0.005)==2]<-paste(weight2, sep=" ", collapse=",")#equal weights scenario gets identified by old name
-  welfares$weights[rowSums(welfares[,c(14,16,18,19)]==0.01)==4 & rowSums(welfares[,c(15,20)]==0.005)==2 & welfares[,17]==1]<-paste(weight1, sep=" ", collapse=",")#high GDP scenario gets identified by old name
-  welfares$weights[rowSums(welfares[,c(14,16,18,19)]==1   )==4 & rowSums(welfares[,c(15,20)]==0.5  )==2 & welfares[,17]==0.01]<-paste(weight3, sep=" ", collapse=",")#low GDP scenario gets identified by old name
-  
-  #save output
-  save(welfares, file = "welfares.Rdata") 
   
   ###############################rename variables#####################################################
   
