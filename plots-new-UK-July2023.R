@@ -13,7 +13,8 @@ print('Run main.R file first')
 }else{
   load("indicators.Rdata")
   load("welfares.Rdata")
-  load("weights.Rdata")
+  load("ar6_data.Rdata")
+  
 }
 
 
@@ -86,7 +87,7 @@ if(!dir.exists("figures")){dir.create("figures")}
   welfares_plot=welfares
   # pick which welfare parameters to choose:
   welfare_plot= welfares_plot %>%
-    filter(rho==1 & weights=="1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0") #equal weights and some substitutability
+    filter(rho==1 & weights=="0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0") #equal weights and some substitutability
   #for that remove non matching columns
   welfare_plot$variable="Welfare"
   welfare_plot$rho<- NULL
@@ -106,18 +107,17 @@ if(!dir.exists("figures")){dir.create("figures")}
   
   data_plot= data_plot%>%
     dplyr::filter(Category!="failed-vetting")
-  #df_test=filter(indicators, Category=="C8" & variable=="GDP|PPP" & b_welfare >0 & year=="2030")
+  
+  df_test=filter(welfare_plot, Category=="C8"& year=="2030" )
   # in  2030,2060,2100:
   #C1 has 13 scenarios
-  #C2 has 25 scenarios
-  #C3 has 60 scenarios
+  #C2 has 21 scenarios (25 with all SSPs)
+  #C3 has 56 scenarios (60 with all SSPs)
   #C4 has 31 scenarios
-  #C5 has 43 scenarios
+  #C5 has 39 scenarios (43 with all SSPs)
   #C6 has 18 scenarios
-  #C7 has 24 scenarios
-  #C8 has 1 scenario
-  #failed vetting: 56 scenarios
-  
+  #C7 has 20 scenarios (24 with all SSPs)
+
  ###########################################################################################
 ############### plot indicators and welfare with jitter for selected years################
 ###########################################################################################
@@ -204,7 +204,7 @@ write_xlsx(df2, 'AR6-summary.xlsx')
 welfares_plot=welfares
 #pick which welfare parameters to choose:
 welfare_plot= welfares_plot %>%
-  filter(rho==1 & weights=="1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0") #equal weights and some substitutability
+  filter(rho==1 & weights=="0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0") #equal weights and some substitutability
 
 welfare_base=welfare_plot
 welfare_base <- filter(welfare_base, year != "", value != "", Category != "failed-vetting") %>%
@@ -296,12 +296,12 @@ dev.off()
 
 #subplot per rho and weight
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
-names(weight.labs) <- c("1, 0, 0, 0.5, 0.5, 1, 100, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0")
+names(weight.labs) <- c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0")
 rho.labs <- c("rho:0", "rho:1", "rho:5")
 names(rho.labs) <- c("0", "1", "5")
 
 welf_plot_red= welfares %>%
-  filter(year %in% c(2030,2060,2100) & weights %in% c("1, 0, 0, 0.5, 0.5, 1, 100, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 1, 0, 1, 0, 1, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0"))
+  filter(year %in% c(2030,2060,2100) & weights %in% c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0"))
 welf_plot_red$yearcat=as.factor(paste(welf_plot_red$year, welf_plot_red$Category))
 
 data_m <- welf_plot_red%>%
