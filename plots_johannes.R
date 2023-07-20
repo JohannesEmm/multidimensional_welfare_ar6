@@ -44,9 +44,11 @@ openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_gdp.xlsx")
 
 #now all weights
 combined_data_allweights <- welfares %>% select(-IMP_marker) %>% left_join(ar6_datadf %>% select(-unit) %>% pivot_wider(names_from = variable, values_from = "value") %>% mutate(gdppc=`GDP|PPP`/Population*1000)) %>% filter(Category!="C8")
+combined_data_allweights <- combined_data_allweights %>% mutate(sum_of_weights = across(starts_with("weight_")) %>% rowSums) %>% filter(year %in% c(2100) & Category!="failed-vetting") 
+
 
 #get scenario dataframe of specific normalized weights
-combined_data_allweights_onlyweights <- combined_data_allweights %>% mutate(sum_of_weights = across(starts_with("weight_")) %>% rowSums) %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% group_by(rho, weights) %>% dplyr::summarise(weight_report = mean(`weight_Food Energy Supply`/sum_of_weights))
+combined_data_allweights_onlyweights <- combined_data_allweights %>% group_by(rho, weights) %>% dplyr::summarise(weight_report = mean(`weight_Food Energy Supply`/sum_of_weights))
 
 #GDPPC
 coefficients_gdppc_welfare_allweights <- combined_data_allweights %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% nest_by(rho, weights) %>% mutate(reg = list(lm(value ~ gdppc, data = data))) %>% summarize(broom::tidy(reg))
@@ -62,6 +64,24 @@ ggsave("figures/violin_temp.png")
 
 
 
+#now loop for all variables
+for(var in paste0("`",str_subset(names(combined_data_allweights), pattern = "weight_"),"`")){
+  print(gsub("`", "", gsub("weight_","",var)))
+  #get scenario dataframe of specific normalized weights
+  combined_data_allweights_onlyweights <- NULL
+  combined_data_allweights_onlyweights <- copy(combined_data_allweights)
+  setnames(combined_data_allweights_onlyweights, gsub("`", "", var), "temp_weight")
+  combined_data_allweights_onlyweights <- combined_data_allweights_onlyweights %>% ungroup() %>% mutate(weight_report = temp_weight/sum_of_weights) %>% group_by(rho, weights) %>% dplyr::summarise(weight_report = mean(weight_report))
+
+  
+  ggpubr::ggarrange(
+  ggplot(coefficients_gdppc_welfare_allweights %>% filter(term=="gdppc") %>% left_join(combined_data_allweights_onlyweights), aes(x = as.factor(rho), y = estimate*1e4, color=weight_report)) + geom_violin(draw_quantiles = c(0.5), alpha=0.6, color = "black") +
+    labs(x="Rho", y="Slope of Welfare - GDP per capita relationship", title = "Slope (welfare points per 10,000 USD)", color = gsub("`", "", gsub("weight_","",var))) + geom_jitter(position = position_jitter(seed = 1, width = 0.1), alpha = 0.4) + geom_hline(yintercept = 0) + theme(legend.position = "bottom") + scale_colour_gradient(low = "yellow", high = "blue", limits = c(0,1)),
+  ggplot(coefficients_temp_welfare_allweights %>% filter(term=="`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`") %>% left_join(combined_data_allweights_onlyweights), aes(x = as.factor(rho), y = estimate, color=weight_report)) + geom_violin(draw_quantiles = c(0.5), alpha=0.6, color = "black") +
+    labs(x="Rho", y="Slope of Welfare - Temperature relationship", title = "Slope (welfare points per 1 degree C)", color = gsub("`", "", gsub("weight_","",var))) + geom_jitter(position = position_jitter(seed = 1, width = 0.1), alpha = 0.4) + geom_hline(yintercept = 0) + theme(legend.position = "bottom") + scale_colour_gradient(low = "yellow", high = "blue", limits = c(0,1)),
+  nrow = 1, common.legend = T, legend = "bottom")
+  ggsave(gsub(" ", "-", gsub("\\|", "-", str_glue('figures/violin_{gsub("`", "", gsub("weight_","",var))}.png'))))
+}
 
 
 
@@ -73,8 +93,7 @@ ggsave("figures/violin_temp.png")
 
 
 
-
-
+stop("no radar chart anymore")
 #Radar chart
 library(ggplot2)
 library(ggradar)
