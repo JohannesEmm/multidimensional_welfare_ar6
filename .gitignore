@@ -39,6 +39,7 @@ min.xlsx
 min_max.xlsx
 plots.R
 plots.R
+*.xlsx
 
 figures/*
 AR6-summary.xlsx
