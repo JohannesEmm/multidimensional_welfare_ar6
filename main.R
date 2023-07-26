@@ -6,12 +6,12 @@ rm(list = ls())
 ### if welfares already exist, just load Rdata file
 ### if welfares exist, indicator.Rdata and weights.Rdata is assumed to exist as well, so this will also load
 
-library(ggplot2)
-library(dplyr)	
-library(stringr)
 library(tidyverse)
+library(ggpubr)
 library(imputeTS)
 library(data.table)
+library(RColorBrewer)
+library(latex2exp)
 
 
 
