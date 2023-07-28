@@ -75,15 +75,17 @@ partition_variables <- function(variables, vars_with_pos_weights, rel_weights, y
   }
   all_weights<-all_weights[-1,]
   #removing all rows that have zeros:
-  row_sub = apply(all_weights, 1, function(row) all(row !=0 ))
-  ##Subset as usual
-  all_weights=all_weights[row_sub,]
+    row_sub = apply(all_weights, 1, function(row) all(row !=0 ))
+    ##Subset as usual
+    all_weights=all_weights[row_sub,]
   #normalizing
-  normalized_weights=all_weights/(rowSums(all_weights))*1
+    normalized_weights=all_weights/(rowSums(all_weights))*1
+    #round to avoid numerical imprecision:
+    normalized_weights=round(normalized_weights, digits=14)
   #removing duplicates
-  row_sub=!duplicated(normalized_weights)
-  ##Subset as usual
-  all_weights=all_weights[row_sub,]
+    row_sub=!duplicated(normalized_weights)
+    ##Subset as usual
+    all_weights=all_weights[row_sub,]
   
   colnames(all_weights)<-red_vars
   

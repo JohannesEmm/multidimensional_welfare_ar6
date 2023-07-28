@@ -139,7 +139,7 @@ theme_set(theme_bw())
 png(file = paste("figures/","AR6_database - indicators",".png",sep=""), width = 1200, height = 1200, units = "px") 
 p=(ggplot(data_plot_red,aes(x=yearcat, indicator, group=interaction(year,Category))) +
      theme_bw() + 
-     geom_rect(xmin = 7.5, xmax = 15.5, ymin = -0.5, ymax = 1.5,
+     geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
                fill = 'snow2', alpha = 0.05) +
   geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, cex=2) + 
   labs(title = paste("AR6-database: ", "Indicators and welfare"),
@@ -311,7 +311,7 @@ theme_set(theme_bw())
 png(file = paste("figures/","AR6_database welfares",".png",sep=""), width = 1200, height = 1200, units = "px") 
 p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
      theme_bw() + 
-     geom_rect(xmin = 7.5, xmax = 15.5, ymin = -0.5, ymax = 1.5,
+     geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
                fill = 'snow2', alpha = 0.05) +
      geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, cex=2) +
      labs(title = paste("AR6-database:", "welfare metric by rho and weight"),
