@@ -22,6 +22,7 @@ library("RColorBrewer")
 library(tidyverse)
 library(dplyr)
 
+library(writexl)
 if(!dir.exists("figures")){dir.create("figures")}
 
 
@@ -179,17 +180,18 @@ dev.off()
 
 
 
-###########################################################################################
 ################################## characterize scenarios                ##################
 ###########################################################################################
+###########################################################################################
 
 
-df_test=filter(indicators_plot, variable=="GDP|PPP" & year=="2030")
+df_test=filter(welfare_plot, year=="2060")
 
 
 df2 <- df_test %>% group_by(Category) %>% 
   summarise(N=sum(value)/mean(value),
             Models=paste(unique(model), collapse=', ' ),
+            Welfare=mean(value),
             .groups = 'drop') %>%
   as.data.frame()
 require("writexl")
@@ -291,6 +293,32 @@ dev.off()
 
 
 #########################################################################################
+##################################### diagnostics on welfare  ###########################
+#########################################################################################
+
+#subplot per rho and weight
+weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
+names(weight.labs) <- c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0")
+rho.labs <- c("rho:0", "rho:1", "rho:5")
+names(rho.labs) <- c("0", "1", "5")
+
+welf_plot_red= welfares %>%
+  filter(year %in% c(2030,2060,2100) & weights %in% c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0"))
+welf_plot_red$yearcat=as.factor(paste(welf_plot_red$year, welf_plot_red$Category))
+
+data_m <- welf_plot_red%>%
+  dplyr::filter(Category!="failed-vetting")
+
+df2 <- data_m %>% group_by(interaction(Category, year, rho, weights)) %>% 
+  summarise(
+            Welfare=mean(value),
+            .groups = 'drop') %>%
+  as.data.frame()
+require("writexl")
+write_xlsx(df2, 'AR6-summary.xlsx')
+
+
+#########################################################################################
 ##################################### plot welfare for selected years ####################################
 ###########################################################################################
 
@@ -322,6 +350,8 @@ p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
      scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
 print(p)
 dev.off()
+
+
 
 
 
