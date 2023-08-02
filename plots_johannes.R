@@ -8,21 +8,23 @@ combined_data$weightname <- plyr::mapvalues(combined_data$selected_weights, from
 combined_data$weightname = factor(combined_data$weightname, levels=c("weight:low GDP", "weight:equal", "weight:high GDP"), labels=c("weight:low GDP", "weight:equal", "weight:high GDP")) 
 
 ggplot(combined_data %>% filter(year %in% c(2050, 2100) & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_wrap(year ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + scale_color_brewer(palette="BrBG")#+ scale_fill_brewer(palette="BrBG")
-ggsave("figures/Index GDP Scatter.png", width=8, height = 5)
+ggsave("figures/Index GDP Scatter 2050 2100.png", width=8, height = 5)
 
 
-year_for_reg_line <- c(2100)
+#year_for_reg_line <- c(2100)
 #year_for_reg_line <- c(2050)
+year_for_reg_line <- c(2030)
+#year_for_reg_line <- c(2060)
 #year_for_reg_line <- seq(2025,2100,5)
 
 ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + ylim(0,1) + scale_color_brewer(palette="BrBG")+ scale_fill_brewer(palette="BrBG")
-ggsave("figures/Index GDP Scatter for rho 2100.png", width=8, height = 5)
+ggsave(str_glue("figures/Index_GDP_Scatter_for_rho_{year_for_reg_line[1]}.png"), width=8, height = 5)
 
 
 
 #add regression line TEMP
-ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="Temperature increase by 2100", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG")  + theme(legend.position = "right")
-ggsave("figures/Temp Welfare Index.png", width=8, height = 5)
+ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="Temperature increase", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG")  + theme(legend.position = "right")
+ggsave(str_glue("figures/Temp_Welfare_Index_{year_for_reg_line[1]}.png"), width=8, height = 5)
 
 combined_data <- combined_data %>% mutate(gdppc=`GDP|PPP`/Population)
 #coefficients
@@ -31,8 +33,8 @@ openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_temp.xlsx")
 
 
 #add regression line GDP
-ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita in 2100 [kUSD-$(PPP)/cap]", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(gdppc, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG") + theme(legend.position = "right")
-ggsave("figures/GDP Welfare Index.png", width=8, height = 5)
+ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(PPP)/cap]", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(gdppc, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG") + theme(legend.position = "right")
+ggsave(str_glue("figures/GDP_Welfare_Index_{year_for_reg_line[1]}.png"), width=8, height = 5)
 #coefficients
 coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ gdppc, data = data))) %>% reframe(broom::tidy(reg))
 openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_gdp.xlsx")
@@ -67,7 +69,7 @@ p_violin[[varnice]] <- ggplot(coefficients_temp_welfare_allweights %>% filter(te
 }
 p_arranged <- ggarrange(p_violin$Temperature, p_violin$GDP, p_violin$`NOx Emissions`, p_violin$`Sulfur Emissions`, p_violin$Electricity, p_violin$`Forest Cover`, p_violin$`Food Supply`, nrow = 4, ncol = 2, common.legend = T, legend = "bottom")
 p_arranged <- annotate_figure(p_arranged, left = text_grob("Slope of the Welfare - Temperature relationship (per 1°C)", color = "black", rot = 90))
-ggsave(str_glue("figures/arranged_violin_plot__{year_for_reg_line[1]}.pdf"), width = 8, height = 12)
+ggsave(str_glue("figures/arranged_violin_plot_{year_for_reg_line[1]}.pdf"), width = 8, height = 12)
 
 #just a Food Supply plot for the main paper
 ggplot(coefficients_temp_welfare_allweights %>% filter(term=="`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`") %>% left_join(combined_data_allweights_onlyweights), aes(x = as.factor(rho), y = estimate, color=weight_report)) + geom_violin(draw_quantiles = c(0.5), alpha=0.6, color = "black") +
