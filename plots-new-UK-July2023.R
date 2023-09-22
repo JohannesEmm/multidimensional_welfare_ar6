@@ -21,7 +21,7 @@ print('Run main.R file first')
 library("RColorBrewer")
 library(tidyverse)
 library(dplyr)
-
+library(ggplot2)
 library(writexl)
 if(!dir.exists("figures")){dir.create("figures")}
 
@@ -288,6 +288,47 @@ p <- grid.arrange(PTemperature2030, PTemperature2060, PTemperature2100, PGDP2030
                                                                                               c(8,9,10,NA,11,12,13,NA,NA),
                                                                                               c(14,15,16,NA,17,18,19,NA,NA),
                                                                                               c(20,21,22,NA,23,24,25,NA,NA)))
+print(p)
+dev.off()
+
+     #####################################reduced plots for NAVIGATE report##########################
+
+
+library(gridExtra)
+
+theme_set(theme_bw())
+theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+pdf(file ="figures/NAVIGATE1.pdf",width=6,height=8) 
+PWelf2100 <- ggplot(subset(welfare_base,year==2100), aes(Category, value)) +
+  geom_point(size=1, show.legend = FALSE)+ggtitle("", subtitle="Welfare") + coord_cartesian(ylim=c(0,1)) +
+  theme(text = element_text(size=15))
+print(PWelf2100)
+dev.off()
+
+
+
+# grid.arrange(PWelf2030, PWelf2060, PWelf2100, legend, ncol=4, widths=c(2, 2, 2, 2))
+
+varset <- unique(indicators_2$variable2)
+#varset2<- unique(indicators_2$variable3)
+
+for(j in varset) 
+{                    
+  i=2100
+  {
+    assign(paste0("P",gsub(" ", "", j),i), ggplot(subset(indicators_2,year==i&variable2==j), aes(x=Category, y=indicator)) +
+             geom_point(size=1)+
+             theme(text = element_text(size=15))+
+             theme(legend.position="none") + ggtitle("", subtitle= paste0(j)) + coord_cartesian(ylim=c(0,1)))
+  }
+}  
+
+pdf(file ="figures/NAVIGATE2.pdf",width=12.5,height=8) 
+p <- grid.arrange(PTemperature2100, PGDP2100, 
+                  PNOxEmissions2100, PSulfurEmissions2100, PForestCover2100, 
+                  PFoodSupply2100,PElectricity2100, PWelf2100, 
+                  ncol=4, nrow=2)
 print(p)
 dev.off()
 
