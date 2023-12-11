@@ -1,7 +1,7 @@
 # this plots the welfare data, run 'main.R' first
 # saves in subfolder "figures"
 
-dir.create("figures")
+#dir.create("figures")
 
 #subplot per model, rho and weight
 weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")

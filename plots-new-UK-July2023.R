@@ -58,7 +58,7 @@ if(!dir.exists("figures")){dir.create("figures")}
             y = "", x = "Time") + 
        scale_x_continuous(breaks = seq(from = 2000, to = 2099, by = 50))+
        facet_wrap( ~ variable, scales = "free", ncol=4)+
-       scale_color_brewer(palette="BrBG")+ scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 200)))
+       scale_color_brewer(palette="RdYlBu", direction = -1)+ scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 200)))
   print(p)
   dev.off()  
   
@@ -147,7 +147,7 @@ p=(ggplot(data_plot_red,aes(x=yearcat, indicator, group=interaction(year,Categor
        y = "", x = "") + 
     scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"),expand=c(0.05, 0))+
   facet_wrap(~variable , scales = "free", ncol=4)+
-    scale_color_brewer(palette="BrBG")+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
+    scale_color_brewer(palette="RdYlBu", direction = -1)+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
     scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
 print(p)
 dev.off()
@@ -172,7 +172,7 @@ p=(ggplot(data_m, aes(x = year, group = Category)) +
           y = "", x = "") + 
      scale_x_continuous(breaks = seq(from = 2020, to = 2099, by = 30))+
      facet_wrap( ~ variable , scales = "free", ncol=4)+
-     scale_color_brewer(palette="BrBG")+
+     scale_color_brewer(palette="RdYlBu", direction = -1)+
      scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28)))
 print(p)
 dev.off()
@@ -236,7 +236,7 @@ theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_tex
 
 PWelf2060 <- ggplot(subset(welfare_base,year==2060), aes(x=Category, y=value, color=Category)) +
   geom_point(size=1)+
-  scale_color_brewer(palette="BrBG") + ggtitle("Welfare",subtitle = "2060") + coord_cartesian(ylim=c(0,1)) + guides(col = guide_legend(nrow = 4))
+  scale_color_brewer(palette="RdYlBu", direction = -1) + ggtitle("Welfare",subtitle = "2060") + coord_cartesian(ylim=c(0,1)) + guides(col = guide_legend(nrow = 4))
 
 print(PWelf2060)
 
@@ -254,7 +254,7 @@ for(i in c(2030,2100))
 {                    
   assign(paste0("PWelf", i), ggplot(subset(welfare_base,year==i), aes(x=Category, y=value, color=Category)) +
            geom_point(size=1)+
-           scale_color_brewer(palette="BrBG") + theme(legend.position="none") + ggtitle(" ",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(" ",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
 }
 
 # grid.arrange(PWelf2030, PWelf2060, PWelf2100, legend, ncol=4, widths=c(2, 2, 2, 2))
@@ -266,7 +266,7 @@ for(j in varset)
 {                    
   assign(paste0("P",gsub(" ", "", j),"2060"), ggplot(subset(indicators_2,year==2060&variable2==j), aes(x=Category, y=indicator, color=Category)) +
            geom_point(size=1)+
-           scale_color_brewer(palette="BrBG") + theme(legend.position="none") + ggtitle(paste0(j),subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(paste0(j),subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
 }
 
 
@@ -276,7 +276,7 @@ for(j in varset)
   {
     assign(paste0("P",gsub(" ", "", j),i), ggplot(subset(indicators_2,year==i&variable2==j), aes(x=Category, y=indicator, color=Category)) +
              geom_point(size=1)+
-             scale_color_brewer(palette="BrBG") + theme(legend.position="none") + ggtitle("",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+             scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle("",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
   }
 }  
 
@@ -387,7 +387,7 @@ p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
           y = "", x = "")  + 
      scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"))+
      facet_grid( rho ~ weights, scales = "free_y", labeller=labeller(rho = rho.labs, weights = weight.labs))+
-     scale_color_brewer(palette="BrBG")+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
+     scale_color_brewer(palette="RdYlBu", direction = -1)+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
      scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
 print(p)
 dev.off()
