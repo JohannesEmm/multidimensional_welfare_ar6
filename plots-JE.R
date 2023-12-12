@@ -14,7 +14,7 @@ ggsave("figures/Index GDP Scatter 2050 2100.png", width=8, height = 5)
 #for policy brief
 ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% filter(weightname=="weight:equal" & rho==1)) + geom_point(aes(Category, value, color=Category)) + scale_color_brewer(palette="RdYlBu", direction = -1) + labs(y="Multidimensional welfare index", x = "IPCC AR6 scenario category") + guides(color="none")
 ggsave("figures/PB_welfare.png", width=8, height = 6)
-ggsave("figures/PB_welfare.pdf", width=8, height = 6)
+ggsave("figures/PB_welfare.pdf", width=6, height = 4)
 
 
 year_for_reg_line <- c(2100)
@@ -82,5 +82,12 @@ ggplot(coefficients_temp_welfare_allweights %>% filter(term=="`AR6 climate diagn
   labs(x=TeX("$\\rho$"), y="change per 1°C", title = "Slope of the Welfare - Temperature relationship", color ="relative weight of Food Supply") + geom_jitter(position = position_jitter(seed = 1, width = 0.1), alpha = 0.4) + geom_hline(yintercept = 0) + theme(legend.position = "bottom") + scale_colour_gradient(low = "yellow", high = "blue", limits = c(0,1))
 ggsave(str_glue("figures/violin_plot_food_supply_for_main_paper_{year_for_reg_line[1]}.pdf"))
 
+
+
+
+#some statistics for the interpretation
+combined_data
+mean(combined_data$value)
+sd(combined_data$value)
 
 
