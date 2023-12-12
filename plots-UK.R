@@ -60,6 +60,8 @@ if(!dir.exists("figures")){dir.create("figures")}
        facet_wrap( ~ variable, scales = "free", ncol=4)+
        scale_color_brewer(palette="RdYlBu", direction = -1)+ scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 200)))
   print(p)
+  ggsave(str_glue("figures/AR6_database_new.png"), width=10, height = 7)
+  
   dev.off()  
   
 ###########################################################################################
@@ -378,7 +380,7 @@ data_m <- welf_plot_red%>%
 
 theme_set(theme_bw())
 png(file = paste("figures/","AR6_database welfares",".png",sep=""), width = 1200, height = 1200, units = "px") 
-p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
+p=(ggplot(data_m %>% left_join(data.frame(weights=names(weight.labs), weights_label=weight.labs)),aes(x=yearcat, value, group=interaction(year,Category)))+
      theme_bw() + 
      geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
                fill = 'snow2', alpha = 0.05) +
@@ -386,7 +388,7 @@ p=(ggplot(data_m,aes(x=yearcat, value, group=interaction(year,Category)))+
      labs(title = paste("AR6-database:", "welfare metric by rho and weight"),
           y = "", x = "")  + 
      scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"))+
-     facet_grid( rho ~ weights, scales = "free_y", labeller=labeller(rho = rho.labs, weights = weight.labs))+
+     facet_grid( rho ~ factor(weights_label, levels=rev(weight.labs)), scales = "free_y", labeller=labeller(rho = rho.labs))+
      scale_color_brewer(palette="RdYlBu", direction = -1)+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
      scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
 print(p)
