@@ -7,29 +7,29 @@ combined_data <- welfares %>% select(-IMP_marker) %>% filter(!is.na(selected_wei
 combined_data$weightname <- plyr::mapvalues(combined_data$selected_weights, from = c("1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0" , "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0" ), to = c("weight:low GDP", "weight:equal", "weight:high GDP"))
 combined_data$weightname = factor(combined_data$weightname, levels=c("weight:low GDP", "weight:equal", "weight:high GDP"), labels=c("weight:low GDP", "weight:equal", "weight:high GDP")) 
 
-ggplot(combined_data %>% filter(year %in% c(2050, 2100) & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_wrap(year ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + scale_color_brewer(palette="BrBG")#+ scale_fill_brewer(palette="BrBG")
+ggplot(combined_data %>% filter(year %in% c(2050, 2100) & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_wrap(year ~ .) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + scale_color_brewer(palette="RdYlBu", direction = -1)#+ scale_fill_brewer(palette="BrBG")
 ggsave("figures/Index GDP Scatter 2050 2100.png", width=8, height = 5)
 
 
 #for policy brief
 ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% filter(weightname=="weight:equal" & rho==1)) + geom_point(aes(Category, value, color=Category)) + scale_color_brewer(palette="RdYlBu", direction = -1) + labs(y="Multidimensional welfare index", x = "IPCC AR6 scenario category") + guides(color="none")
 ggsave("figures/PB_welfare.png", width=8, height = 6)
-ggsave("figures/PB_welfare.pdf", width=8, height = 6)
+ggsave("figures/PB_welfare.pdf", width=6, height = 4)
 
 
-#year_for_reg_line <- c(2100)
+year_for_reg_line <- c(2100)
 #year_for_reg_line <- c(2050)
-year_for_reg_line <- c(2030)
+#year_for_reg_line <- c(2030)
 #year_for_reg_line <- c(2060)
 #year_for_reg_line <- seq(2025,2100,5)
 
-ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + ylim(0,1) + scale_color_brewer(palette="BrBG")+ scale_fill_brewer(palette="BrBG")
+ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(2015)/cap]", y="Welfare index") + ylim(0,1) + scale_color_brewer(palette="RdYlBu", direction = -1)+ scale_fill_brewer(palette="BrBG")
 ggsave(str_glue("figures/Index_GDP_Scatter_for_rho_{year_for_reg_line[1]}.png"), width=8, height = 5)
 
 
 
 #add regression line TEMP
-ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="Temperature increase", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG")  + theme(legend.position = "right")
+ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="Temperature increase", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="RdYlBu", direction = -1)  + theme(legend.position = "right")
 ggsave(str_glue("figures/Temp_Welfare_Index_{year_for_reg_line[1]}.png"), width=8, height = 5)
 
 combined_data <- combined_data %>% mutate(gdppc=`GDP|PPP`/Population)
@@ -39,7 +39,7 @@ openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_temp.xlsx")
 
 
 #add regression line GDP
-ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(PPP)/cap]", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(gdppc, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="BrBG") + theme(legend.position = "right")
+ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(PPP)/cap]", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(gdppc, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position = "right")
 ggsave(str_glue("figures/GDP_Welfare_Index_{year_for_reg_line[1]}.png"), width=8, height = 5)
 #coefficients
 coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ gdppc, data = data))) %>% reframe(broom::tidy(reg))
@@ -82,5 +82,12 @@ ggplot(coefficients_temp_welfare_allweights %>% filter(term=="`AR6 climate diagn
   labs(x=TeX("$\\rho$"), y="change per 1°C", title = "Slope of the Welfare - Temperature relationship", color ="relative weight of Food Supply") + geom_jitter(position = position_jitter(seed = 1, width = 0.1), alpha = 0.4) + geom_hline(yintercept = 0) + theme(legend.position = "bottom") + scale_colour_gradient(low = "yellow", high = "blue", limits = c(0,1))
 ggsave(str_glue("figures/violin_plot_food_supply_for_main_paper_{year_for_reg_line[1]}.pdf"))
 
+
+
+
+#some statistics for the interpretation
+combined_data
+mean(combined_data$value)
+sd(combined_data$value)
 
 
