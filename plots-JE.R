@@ -13,6 +13,8 @@ ggsave("figures/Index GDP Scatter 2050 2100.png", width=8, height = 5)
 
 #for policy brief
 ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% filter(weightname=="weight:equal" & rho==1)) + geom_point(aes(Category, value, color=Category)) + scale_color_brewer(palette="RdYlBu", direction = -1) + labs(y="Multidimensional welfare index", x = "IPCC AR6 scenario category") + guides(color="none")
+#add mean value as small black lines
+ggplot(combined_data %>% filter(year %in% c(2100) & Category!="failed-vetting") %>% filter(weightname=="weight:equal" & rho==1), aes(Category, value, color=Category)) + geom_point() + scale_color_brewer(palette="RdYlBu", direction = -1) + labs(y="Multidimensional welfare index", x = "IPCC AR6 scenario category") + guides(color="none") +   stat_summary(geom = "point", fun.y = "mean", col = "black", size = 4, shape = 4, fill = "black")
 ggsave("figures/PB_welfare.png", width=8, height = 6)
 ggsave("figures/PB_welfare.pdf", width=6, height = 4)
 
@@ -34,7 +36,7 @@ ggsave(str_glue("figures/Temp_Welfare_Index_{year_for_reg_line[1]}.png"), width=
 
 combined_data <- combined_data %>% mutate(gdppc=`GDP|PPP`/Population)
 #coefficients
-coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ `AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, data = data))) %>% reframe(broom::tidy(reg))
+coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ `AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, data = data))) %>% reframe(broom::tidy(reg)) %>% filter(term!="(Intercept)")
 openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_temp.xlsx")
 
 
@@ -42,7 +44,7 @@ openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_temp.xlsx")
 ggplot(combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting")) + geom_point(aes(gdppc, value, color=Category)) + facet_grid(paste0("rho:",rho) ~ weightname) + labs(x="GDP per capita [kUSD-$(PPP)/cap]", y="Welfare index", color="Category") + theme(legend.position="bottom") + geom_smooth(aes(gdppc, value), color="black", method="lm")  + ylim(0,1)  + scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position = "right")
 ggsave(str_glue("figures/GDP_Welfare_Index_{year_for_reg_line[1]}.png"), width=8, height = 5)
 #coefficients
-coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ gdppc, data = data))) %>% reframe(broom::tidy(reg))
+coefficients_temp_welfare <- combined_data %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weightname) %>% mutate(reg = list(lm(value ~ gdppc, data = data))) %>% reframe(broom::tidy(reg)) %>% filter(term!="(Intercept)")
 openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_gdp.xlsx")
 
 
