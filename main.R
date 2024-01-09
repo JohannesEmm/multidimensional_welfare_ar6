@@ -71,9 +71,11 @@ if(!file.exists("welfares.Rdata"))
   #ensure order of the following list is the same as in (variables_min/max)
   # finding extrema is documented in excel sheet AR6_min_max_updates
   # extrema from the data set are calculated in CheckOutliers.R file
-  variables_min=c(0, 0.402, -26 , 0.000493, 0.000115, 0.0009,1.62, NA, 0   , NA, 0.00279, 1827);
+  variables_min=c(0, 0.402, -26 , 0.000493, 0.000115, 0,0.1, NA, 0   , NA, 0.00279, 1827);
+#values initial submission:  variables_min=c(0, 0.402, -26 , 0.000493, 0.000115, 0,0.1, NA, 0   , NA, 0.00279, 1827);
   names(variables_min)=variables
-  variables_max=c(NA, 161 , 35.1, 0.059   , 0.0575  , 0.254 , 180, NA, 0.61, NA, 0.00688, 4505);	
+  variables_max=c(NA, 161 , 35.1, 0.059   , 0.0575  , 0.254 , 75, NA, 0.61, NA, 0.00688, 4505);	
+#values initial submission:   variables_max=c(NA, 161 , 35.1, 0.059   , 0.0575  , 0.254 , 180, NA, 0.61, NA, 0.00688, 4505);
   names(variables_max)=variables
   
   #For each variable, the indicator will be added along with minimum, maximum, indicator for bad and log
