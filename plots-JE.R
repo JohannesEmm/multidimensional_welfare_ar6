@@ -49,7 +49,7 @@ openxlsx::write.xlsx(coefficients_temp_welfare, file="reg_gdp.xlsx")
 
 
 
-
+year_for_reg_line <- c(2030,2060,2100)
 
 #now all weights
 combined_data_allweights <- welfares %>% select(-IMP_marker) %>% left_join(ar6_datadf %>% select(-unit) %>% pivot_wider(names_from = variable, values_from = "value") %>% mutate(gdppc=`GDP|PPP`/Population*1000)) %>% filter(Category!="C8")
@@ -60,7 +60,7 @@ coefficients_gdppc_welfare_allweights <- combined_data_allweights %>% filter(yea
 #Temperature
 coefficients_temp_welfare_allweights <- combined_data_allweights %>% filter(year %in% year_for_reg_line & Category!="failed-vetting") %>% nest_by(rho, weights) %>% mutate(reg = list(lm(value ~ `AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`, data = data))) %>% reframe(broom::tidy(reg))
 
-
+for(.temp in year_for_reg_line){
 #now loop for all variables
 p_violin <- list()
 for(var in paste0("`",str_subset(names(combined_data_allweights), pattern = "weight_"),"`")[c(1,4,5,6,7,9,11)]){
@@ -77,13 +77,13 @@ p_violin[[varnice]] <- ggplot(coefficients_temp_welfare_allweights %>% filter(te
 }
 p_arranged <- ggarrange(p_violin$Temperature, p_violin$GDP, p_violin$`NOx Emissions`, p_violin$`Sulfur Emissions`, p_violin$Electricity, p_violin$`Forest Cover`, p_violin$`Food Supply`, nrow = 4, ncol = 2, common.legend = T, legend = "bottom")
 p_arranged <- annotate_figure(p_arranged, left = text_grob("Slope of the Welfare - Temperature relationship (per 1°C)", color = "black", rot = 90))
-ggsave(str_glue("figures/arranged_violin_plot_{year_for_reg_line[1]}.pdf"), width = 8, height = 12)
+ggsave(str_glue("figures/arranged_violin_plot_{.temp}.pdf"), width = 8, height = 12)
 
 #just a Food Supply plot for the main paper
 ggplot(coefficients_temp_welfare_allweights %>% filter(term=="`AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile`") %>% left_join(combined_data_allweights_onlyweights), aes(x = as.factor(rho), y = estimate, color=weight_report)) + geom_violin(draw_quantiles = c(0.5), alpha=0.6, color = "black") +
   labs(x=TeX("$\\rho$"), y="change per 1°C", title = "Slope of the Welfare - Temperature relationship", color ="relative weight of Food Supply") + geom_jitter(position = position_jitter(seed = 1, width = 0.1), alpha = 0.4) + geom_hline(yintercept = 0) + theme(legend.position = "bottom") + scale_colour_gradient(low = "yellow", high = "blue", limits = c(0,1))
-ggsave(str_glue("figures/violin_plot_food_supply_for_main_paper_{year_for_reg_line[1]}.pdf"))
-
+ggsave(str_glue("figures/violin_plot_food_supply_for_main_paper_{.temp}.pdf"))
+}
 
 
 
