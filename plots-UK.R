@@ -143,7 +143,7 @@ ggplot(data_plot_red,aes(x=yearcat, indicator, group=interaction(year,Category))
   geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
             fill = 'snow2', alpha = 0.05) +
   geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, size=0.5) +  
-  labs(title = paste("AR6-database: ", "Indicators and welfare"),
+  labs(title = paste("AR6 database:", "Indicators and welfare"),
        y = "", x = "") + 
   scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"),expand=c(0.05, 0))+
   facet_wrap(~variable , scales = "free", ncol=4)+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
