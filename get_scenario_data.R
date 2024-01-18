@@ -54,19 +54,33 @@ if(!file.exists("ar6_data.Rdata") | reload_data){
 print(ggplot(ar6_datadf %>% dplyr::filter(Category!="failed-vetting" & Category!="NaN" & Category!="no-climate-assessment")) + geom_line(aes(year, value, group=interaction(scenario, model), color=Category), alpha=0.7) + facet_wrap(variable ~ ., scales = "free") + theme(legend.position = "bottom"))
 
 
-
+##############extracting extrema###############################
 
 
 #get regional data (R6) regions
 #get per capital values
 ar6_data_regional <- ar6_data_regional %>% left_join(ar6_data_regional %>% filter(variable=="Population") %>% select(-variable,-unit) %>% rename(Population=value))
-#remove outliers
+#remove outliers (see script CheckOutliers.R)
 ar6_data_regional <- ar6_data_regional %>% filter(Population < 1*10^5 & !(variable=="Food Demand" & value > 10000) & !(variable=="Food Energy Supply" & value == 0) & !(variable=="Land Cover" & value < 10000) & !(variable=="Land Cover|Forest" & value < 2000))
 #compute per capita values
 ar6_data_regional <- ar6_data_regional %>% mutate(valuepc=value/Population)
 #get extrema
 ar6_data_regional_extremes <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(valuepc, na.rm = T), max=max(valuepc, na.rm = T))
 print(ar6_data_regional_extremes)
+
+#add forest land cover as share:
+
+ar6_data_regional <- ar6_data_regional %>% left_join(ar6_data_regional %>% filter(variable=="Land Cover") %>% select(-variable,-unit) %>% rename(Land=value))
+ar6_data_regional <- ar6_data_regional %>% mutate(valuepc_land=value/Land)
+#get extrema
+ar6_data_regional_extremes <- ar6_data_regional %>% group_by(variable) %>% summarize(min=min(valuepc_land, na.rm = T), max=max(valuepc_land, na.rm = T))
+print(ar6_data_regional_extremes)
+
+#add temperature:
+ar6_data_extremes <- ar6_datadf %>% group_by(variable) %>% summarize(min=min(value, na.rm = T), max=max(value, na.rm = T))
+print(ar6_data_extremes)
+
+
                    
 
      

@@ -1,13 +1,7 @@
-min_df=tapply(X=indicators$value_pc, INDEX=indicators$variable, FUN=min, na.rm=TRUE )
-write_min=as.data.frame(min_df)
-write.xlsx(write_min, 'min.xlsx')
 
-max_df=tapply(X=indicators$value_pc, INDEX=indicators$variable, FUN=max, na.rm=TRUE )
-write_max=as.data.frame(max_df)
-write.xlsx(write_max, 'max.xlsx')
 
 ##############################################################################################
-############################## outliers global data fram #####################################
+############################## outliers global data frame ####################################
 ##############################################################################################
 
 #1) Outliers for population
