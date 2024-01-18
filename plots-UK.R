@@ -150,54 +150,6 @@ ggplot(data_plot_red,aes(x=yearcat, indicator, group=interaction(year,Category))
   scale_color_brewer(palette="RdYlBu", direction = -1)#+ theme(text = element_text(size = 28))  
 ggsave("figures/AR6_database - indicators.pdf", width=10, height = 6)
 
-
-
-#########################################################################################
-############### plot indicators and welfare with geomline for all years ################
-###########################################################################################
-
-theme_set(theme_bw())
-data_m <- data_plot %>% group_by(Category, variable, year) %>%
-  dplyr::summarize(Mean = mean(indicator, na.rm=TRUE), SD=sd(indicator, na.rm=TRUE))
-data_m<- data_m %>% 
-  drop_na(Mean, SD)
-data_m <- data_m %>% 
-  filter(year %in% seq(from = 2010, to = 2100, by = 10))
-
-png(file = paste("figures/","AR6 database - mean indicators",".png",sep=""), width = 1200, height = 1200, units = "px") 
-p=(ggplot(data_m, aes(x = year, group = Category)) +
-     geom_line(aes(y=Mean, color=Category), linewidth=1) + 
-     geom_ribbon(aes(y = Mean, ymin = Mean - SD, ymax = Mean + SD, fill = Category), alpha = .1)+
-     labs(title = paste("AR6-database:", "mean indicators and welfare"),
-          y = "", x = "") + 
-     scale_x_continuous(breaks = seq(from = 2020, to = 2099, by = 30))+
-     facet_wrap( ~ variable , scales = "free", ncol=4)+
-     scale_color_brewer(palette="BrBG")+
-     scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28)))
-print(p)
-dev.off()
-
-
-
-
-################################## characterize scenarios                ##################
-###########################################################################################
-###########################################################################################
-
-
-df_test=filter(welfare_plot, year=="2060")
-
-
-df2 <- df_test %>% group_by(Category) %>% 
-  summarise(N=sum(value)/mean(value),
-            Models=paste(unique(model), collapse=', ' ),
-            Welfare=mean(value),
-            .groups = 'drop') %>%
-  as.data.frame()
-require("writexl")
-write_xlsx(df2, 'AR6-summary.xlsx')
-
-
 ###########################################################################################
 ################################## prepare plots for 1 welfare and indicators##############
 ###########################################################################################
@@ -236,7 +188,7 @@ theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_tex
 
 PWelf2060 <- ggplot(subset(welfare_base,year==2060), aes(x=Category, y=value, color=Category)) +
   geom_point(size=1)+scale_color_brewer(palette="RdYlBu", direction = -1) + 
-  ggtitle("Welfare",subtitle = "2060") + coord_cartesian(ylim=c(0,1)) + guides(col = guide_legend(nrow = 4))
+  ggtitle("Welfare",subtitle = "2060") + coord_cartesian(ylim=c(0,1.25)) + guides(col = guide_legend(nrow = 4))
 
 print(PWelf2060)
 
@@ -254,7 +206,7 @@ for(i in c(2030,2100))
 {                    
   assign(paste0("PWelf", i), ggplot(subset(welfare_base,year==i), aes(x=Category, y=value, color=Category)) +
            geom_point(size=1)+
-           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(" ",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(" ",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1.25)))
 }
 
 # grid.arrange(PWelf2030, PWelf2060, PWelf2100, legend, ncol=4, widths=c(2, 2, 2, 2))
@@ -266,7 +218,7 @@ for(j in varset)
 {                    
   assign(paste0("P",gsub(" ", "", j),"2060"), ggplot(subset(indicators_2,year==2060&variable2==j), aes(x=Category, y=indicator, color=Category)) +
            geom_point(size=1)+
-           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(paste0(j),subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+           scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(paste0(j),subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1.25)))
 }
 
 
@@ -276,7 +228,7 @@ for(j in varset)
   {
     assign(paste0("P",gsub(" ", "", j),i), ggplot(subset(indicators_2,year==i&variable2==j), aes(x=Category, y=indicator, color=Category)) +
              geom_point(size=1)+
-             scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle("",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1)))
+             scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle("",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1.25)))
   }
 }  
 
@@ -513,55 +465,6 @@ print(mean(welfare_data$GDP_reduced))
 model=lm(welfare_data$value ~ welfare_data$value_pc)
 r=1-(mean(welfare_data$value_pc-diff_welfare/model$coefficients[2]))/mean(welfare_data$value_pc)
 print(r)
-
-
-#value of GDP per capita in 2020:
-
-selected_year=2020
-
-welfaresyear=welfares %>% filter(year==selected_year) %>% filter(rho==1) %>% filter(selected_weights=="0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0")
-indicators_year <- indicators %>% filter(b_welfare>0) %>% filter(Category!='C8') %>% filter(year==selected_year)
-variables_year<- indicators_year %>% filter(variable=='GDP')
-
-#drop unnecessary columns
-
-welfaresyear <- select(welfaresyear, c(model, scenario, value))
-variables_year <- select(variables_year, c(model, scenario, value_pc))
-welfare_data<-  welfaresyear %>% left_join(variables_year, by=c('model', 'scenario') ) 
-print('average GDP per capita in 2020:')
-print(mean(welfare_data$value_pc))
-
-
-# 
-# ### now for all weights and rhos:
-# welfaresyear=welfares %>% filter(year==selected_year) 
-# welfaresyear=welfaresyear %>% 
-#   mutate(
-#     aggregate_weight= select(., starts_with("weight_")) %>% rowSums()
-#   )
-# 
-# welfare_data <- select(welfaresyear, c(model, scenario, rho, `weight_GDP|PPP`, aggregate_weight,value))
-# welfare_data<-  welfare_data %>% left_join(variables_year, by=c('model', 'scenario') ) 
-# 
-# #calculate as r the change in GDP per capita (as a share) that is equivalent to a change in welfare
-# #equal to diff_welfare
-# 
-# welfare_data= welfare_data %>% 
-#   mutate(r=(rho==1)*(exp( ( (1+diff_welfare/value)^(1/(`weight_GDP|PPP`/aggregate_weight))   -1)*(log(value_pc)-log(min_GDP))   )-1 )
-#          + (1-(rho==1))*(exp( (1/(`weight_GDP|PPP`/aggregate_weight)*( (value+diff_welfare)^(1-rho*(rho!=1)) - value^(1-rho*(rho!=1)) 
-#                                                               + `weight_GDP|PPP`/aggregate_weight*((log(value_pc)-log(min_GDP))/(log(max_GDP)-log(min_GDP)))^(1-rho*(rho!=1))))^(1/(1-rho*(rho!=1)))*(log(max_GDP)-log(min_GDP))+log(min_GDP) -log(value_pc) )-1))
-# 
-# #get average:
-# print('average share in GDP change equivalent to welfare change across all welfare parameters:')
-# print(mean(welfare_data$r))
-# print('average GDP per capita:')
-# print(mean(welfare_data$value_pc))
-# 
-# 
-
-
-
-
 
 
 
