@@ -54,7 +54,7 @@ ggplot(test_red, aes(y=value_pc, x=model))+geom_point()
 #10) Outliers for Land Cover
 test_red=filter(indicators, variable=="Land Cover")
 ggplot(test_red, aes(y=value_pc, x=model))+geom_point()
-#-->  Since land cover is clearly avove 10000 million ha in the 2000s, 
+#-->  Since land cover is clearly above 10000 million ha in the 2000s, 
 # there appear to be 3 outliers below this value (2 models with multiple scenarios)
 
 #11) Outliers for Land Cover| Forest

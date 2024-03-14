@@ -3,7 +3,6 @@ compute_welfare <- function(all_indicators, r, w)
   # computes the welfare metric C1 of Zuber (2022) for all welfare parameters
   # welfare metric computed for (model, scenario, year, substitution parameter, set of weights)
   # indicators is dataframe with column indicator used for welfare metric
-  ##NOT IMPLEMENTED e is list of inequality aversion parameters
   # r is substitutability level 
   # w is list of positive weights
   

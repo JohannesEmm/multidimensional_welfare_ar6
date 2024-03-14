@@ -3,7 +3,6 @@ compute_welfare_df <- function(indicators, rho, weights)
   # computes the welfare metric C1 of Zuber (2022) for all welfare parameters
   # welfare metric computed for (model, scenario, year, substitution parameter, set of weights)
   # indicators is dataframe with column indicator used for welfare metric
-  ##NOT IMPLEMENTED e is list of inequality aversion parameters
   # rho is list of substitutability levels 
   # weight is dataframe with variable and corresponding weight
   
@@ -24,7 +23,7 @@ compute_welfare_df <- function(indicators, rho, weights)
   weight_columns=paste("weight",colnames(weights), sep="_")
   out[, weight_columns]=NA
   
-  #this function return TRUE if the specific list of variables contains all 
+  #this function returns TRUE if the specific list of variables contains all 
   #variables with positive weight
   MatchVariables <- function(vars,var_list) {
     all(var_list %in% vars)

@@ -84,9 +84,6 @@ add_indicators_df <- function (ar6_datadf, variables_log, variables_bad, variabl
   out=out[mins]
   out=out[maxs]
   
-  #out=merge(out, mins, by = c("variable"))
-  #out=merge(out, maxs, by = c("variable"))
-
   out$bad= 1*(out$variable %in% variables_bad)+0;
   out$log= 1*(out$variable %in% variables_log)+0;
   

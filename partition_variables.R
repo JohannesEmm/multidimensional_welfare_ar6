@@ -2,7 +2,7 @@ partition_variables <- function(variables, vars_with_pos_weights, rel_weights, y
 {
   #function partitions vars_with_pos_weights into all possible combinations of 3 subsets
   #3 subsets each have weights in rel_weights (these are denoted high,
-                #medium and low and taken as the order in rel_weights but the actual order does not matter)
+  #medium and low and taken as the order in rel_weights but the actual order does not matter)
   #yes_snox specifies that variables sox and nox will be taken together as 1 variable that each receive half the weight
   #finally all variables in variables but not in vars_with_pos_weights get a zero weight
   
@@ -20,14 +20,14 @@ partition_variables <- function(variables, vars_with_pos_weights, rel_weights, y
   {red_vars=vars_with_pos_weights}
   
   #creating two loops: first loop runs over subset out of vars_with_pos_weights with high weight, 
-  #second loop assign medium and low weight to partition of (vars_with_pos_weights-high subset) into 
+  #second loop assigns medium and low weight to partition of (vars_with_pos_weights-high subset) into 
   #two further subsets
   
   #initiating list of weights:
   all_weights <- matrix(ncol=length(red_vars), nrow=1)
   
   #number of partitions of two subsets:
-  n_2_high=2^(length(red_vars) )-1 #number of possible subsets containing at least one variable
+  n_2_high=2^(length(red_vars) )-1  #number of possible subsets containing at least one variable
   for (high_id in 0:n_2_high)       #adding empty set to have this as well
   {
     #initiate weights with zeros:

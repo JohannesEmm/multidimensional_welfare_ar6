@@ -51,7 +51,6 @@ data_m$variable[data_m$variable == "Food Supply"]="Food Supply [EJ/yr]"
 data_m$variable[data_m$variable == "Forest Cover"]="Forest Cover [million ha]"
 
 theme_set(theme_bw())
-#png(file = paste("figures/","AR6_database- variables",".png",sep=""), width = 12000, height = 12000, units = "px") 
 
 ggplot(data_m) +
   geom_line(aes(x=year, y=value, color=Category, group=interaction(model,scenario)), size=0.1) + 
@@ -82,7 +81,6 @@ data_plot= indicators %>%
   filter(variable !="Land Cover")%>%
   filter(variable !="Population")%>%
   dplyr::filter(Category!="failed-vetting")
-#dplyr::filter(Category!="C8") #removing C8 because it is only one scenario in here
 
 # ammend the welfare to data_plot
 welfares_plot=welfares
@@ -109,6 +107,7 @@ data_plot=bind_rows(indicators_plot,welfare_plot)
 data_plot= data_plot%>%
   dplyr::filter(Category!="failed-vetting")
 
+# how many scenarios in models in each C-category?
 df_test=filter(welfare_plot, Category=="C8"& year=="2030" )
 # in  2030,2060,2100:
 #C1 has 13 scenarios
@@ -172,9 +171,6 @@ indicators_2 <- filter(indicators_plot, year != "", indicator != "", Category !=
 indicators_2$indicator<-as.numeric(indicators_2$indicator) 
 
 indicators_2$variable2 <- indicators_2$variable
-#indicators_2$variable3 <- indicators_2$variable
-#indicators_2 <- indicators_2 %>%
-#  mutate(variable2=recode(variable2, "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile"="Temperature","Comsumption"="Comsumption","Emissions|CO2"="CO2_Emissions","Emissions|NOx"="NOx_Emissions","Emissions|Sulfur"="Sulfur_Emissions","Final Energy|Electricity"="Electricity","Food Demand"="Food_Demand", "Food Energy Supply"="Food","GDP|PPP"="Per_capita_GDP","Land Cover"="Land_Cover","Land Cover|Forest"="Forest_Cover","Population"="Population"))
 indicators_2 <- indicators_2 %>%
   mutate(variable2=recode(variable2, "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile"="Temperature","Comsumption"="Comsumption","Emissions|CO2"="CO2 Emissions","Emissions|NOx"="NOx Emissions","Emissions|Sulfur"="Sulfur Emissions","Final Energy|Electricity"="Electricity","Food Demand"="Food Demand", "Food Energy Supply"="Food Supply","GDP|PPP"="GDP","Land Cover"="Land Cover","Land Cover|Forest"="Forest Cover","Population"="Population"))
 
@@ -209,10 +205,7 @@ for(i in c(2030,2100))
            scale_color_brewer(palette="RdYlBu", direction = -1) + theme(legend.position="none") + ggtitle(" ",subtitle = paste0(i)) + coord_cartesian(ylim=c(0,1.25)))
 }
 
-# grid.arrange(PWelf2030, PWelf2060, PWelf2100, legend, ncol=4, widths=c(2, 2, 2, 2))
-
 varset <- unique(indicators_2$variable2)
-#varset2<- unique(indicators_2$variable3)
 i=2060
 for(j in varset) 
 {                    
@@ -243,72 +236,6 @@ p=grid.arrange(PTemperature2030, PTemperature2060, PTemperature2100, PGDP2030, P
 print(p)
 dev.off()
 
-#####################################reduced plots for NAVIGATE report##########################
-
-
-library(gridExtra)
-
-theme_set(theme_bw())
-theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank())
-
-pdf(file ="figures/NAVIGATE1.pdf",width=6,height=8) 
-PWelf2100 <- ggplot(subset(welfare_base,year==2100), aes(Category, value)) +
-  geom_point(size=1, show.legend = FALSE)+ggtitle("", subtitle="Welfare") + coord_cartesian(ylim=c(0,1)) +
-  theme(text = element_text(size=15))
-print(PWelf2100)
-dev.off()
-
-
-
-# grid.arrange(PWelf2030, PWelf2060, PWelf2100, legend, ncol=4, widths=c(2, 2, 2, 2))
-
-varset <- unique(indicators_2$variable2)
-#varset2<- unique(indicators_2$variable3)
-
-for(j in varset) 
-{                    
-  i=2100
-  {
-    assign(paste0("P",gsub(" ", "", j),i), ggplot(subset(indicators_2,year==i&variable2==j), aes(x=Category, y=indicator)) +
-             geom_point(size=1)+
-             theme(text = element_text(size=15))+
-             theme(legend.position="none") + ggtitle("", subtitle= paste0(j)) + coord_cartesian(ylim=c(0,1)))
-  }
-}  
-
-pdf(file ="figures/NAVIGATE2.pdf",width=12.5,height=8) 
-p <- grid.arrange(PTemperature2100, PGDP2100, 
-                  PNOxEmissions2100, PSulfurEmissions2100, PForestCover2100, 
-                  PFoodSupply2100,PElectricity2100, PWelf2100, 
-                  ncol=4, nrow=2)
-print(p)
-dev.off()
-
-
-#########################################################################################
-##################################### diagnostics on welfare  ###########################
-#########################################################################################
-
-#subplot per rho and weight
-weight.labs <- c("weight:high GDP", "weight:equal", "weight:low GDP")
-names(weight.labs) <- c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0")
-rho.labs <- c("rho:0", "rho:1", "rho:5")
-names(rho.labs) <- c("0", "1", "5")
-
-welf_plot_red= welfares %>%
-  filter(year %in% c(2030,2060,2100) & weights %in% c("0.01, 0, 0, 0.005, 0.005, 0.01, 1, 0, 0.01, 0, 0.01, 0", "0.01, 0, 0, 0.005, 0.005, 0.01, 0.01, 0, 0.01, 0, 0.01, 0", "1, 0, 0, 0.5, 0.5, 1, 0.01, 0, 1, 0, 1, 0"))
-welf_plot_red$yearcat=as.factor(paste(welf_plot_red$year, welf_plot_red$Category))
-
-data_m <- welf_plot_red%>%
-  dplyr::filter(Category!="failed-vetting")
-
-df2 <- data_m %>% group_by(interaction(Category, year, rho, weights)) %>% 
-  summarise(
-    Welfare=mean(value),
-    .groups = 'drop') %>%
-  as.data.frame()
-require("writexl")
-write_xlsx(df2, 'AR6-summary.xlsx')
 
 
 #########################################################################################
@@ -361,21 +288,6 @@ ggplot(data_m %>% left_join(data.frame(weights=names(weight.labs), weights_label
   labs(fill = "")
 ggsave("figures/AR6_database - welfares.pdf", width=8, height = 6)
 
-
-p=(ggplot(data_m %>% left_join(data.frame(weights=names(weight.labs), weights_label=weight.labs)),aes(x=yearcat, value, group=interaction(year,Category)))+
-     theme_bw() + 
-     geom_rect(xmin = 7.5, xmax = 14.5, ymin = -0.5, ymax = 1.5,
-               fill = 'snow2', alpha = 0.05) +
-     geom_jitter(aes(color=Category, group=interaction(year,Category)),width = 0.1, cex=2) +
-     labs(title = paste("AR6-database:", "welfare metric by rho and weight"),
-          y = "", x = "")  + 
-     scale_x_discrete(breaks = c("2030 C4","2060 C4","2100 C4"), labels=c("2030","2060","2100"))+
-     facet_grid( rho ~ factor(weights_label, levels=rev(weight.labs)), scales = "free_y", labeller=labeller(rho = rho.labs))+
-     scale_color_brewer(palette="RdYlBu", direction = -1)+#geom_point(data=data_m, shape=7, aes(x=yearcat, y=Mean, group = Category, colour=Category),size=2)+ # here you can see that the distribution does not really deliver a meaningful mean
-     scale_fill_brewer(palette="BrBG")+ theme(text = element_text(size = 28))  )
-print(p)
-dev.off()
-
 ##########################################################################################
 ###############################correlation matrix between indicators #####################
 ##########################################################################################
@@ -394,12 +306,6 @@ corr_data_2030=corr_data %>% filter( year==2030) %>% select(-year)
 corr_data_2060=corr_data %>% filter( year==2060) %>% select(-year)
 corr_data_2100=corr_data %>% filter( year==2100) %>% select(-year)
 
-#pdf(file ="figures/CorrelationMatrix2030.pdf",width=5.63,height=3.91) 
-#p<-par(mar = c(5.1, 4.1, 15, 2.1))#default (5.1, 4.1, 4.1, 2.1).
-#p<-chart.Correlation(corr_data_2030, histogram = TRUE, pch = 19)
-#p<-mtext("Year 2030", side=3, line=14, cex=1)
-#print(p)
-#dev.off()
 
 library(GGally)
 library(gridExtra)
