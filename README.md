@@ -3,10 +3,7 @@
 # for initial data from AR6 database run:
 get_scenario_data.R
 
-# to retrieve indicator and welfare levels run:
+# to retrieve indicator and welfare levels and create tables and figures run:
 main.R
 
-# for plots and tables in publication run:
-plots-UK.R
-plots-JE.R
 
