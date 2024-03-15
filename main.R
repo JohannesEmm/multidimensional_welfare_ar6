@@ -163,7 +163,8 @@ if(!file.exists("welfares.Rdata"))
 	
 
 
-
+######### Check Outliers #######
+source("check_outliers.R")
 
 
 

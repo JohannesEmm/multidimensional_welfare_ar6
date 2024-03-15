@@ -159,9 +159,6 @@ test_red=filter(ar6_data_regional, variable=="Land Cover" & model=="C3IAM 1.0")
 ggplot(test_red, aes(y=value, x=year,group=interaction(scenario, region), color=region))+geom_line()
 #--> land value has diverging starting points and changes tremendously over time, need to be careful with that. 
 # C3IAM 1.0 does not provide any Forest land cover, so ignoring now.
-#Checking whether land cover is somehow net of forest land cover:
-test_red=filter(ar6_data_regional, model=="C3IAM 1.0" & variable %in% c("Land Cover","Land Cover|Forest"))
-test_red <- test_red %>% left_join(test_red %>% filter(variable=="Land Cover") %>% select(-variable,-unit) %>% rename(land_cover=value))
 
 #11) Outliers for Land Cover| Forest
 test_red=filter(ar6_data_regional, variable=="Land Cover|Forest")
