@@ -7,6 +7,10 @@ library(imputeTS)
 library(data.table)
 library(RColorBrewer)
 library(latex2exp)
+library(gridExtra)
+library(RColorBrewer)
+library(PerformanceAnalytics)
+library(GGally)
 
 ### if welfares already exist, just load Rdata file
 ### if welfares exist, indicator.Rdata and weights.Rdata is assumed to exist as well, so this will also load
@@ -18,18 +22,15 @@ if(!file.exists("welfares.Rdata"))
   #########################        load functions       ##############################################
   ####################################################################################################    
   
-  source("compute_welfare_df.R");
-  source("compute_welfare.R");
-  source("add_indicators_df.R");
-  source("partition_variables.R");
+  source("functions.R")
+  
   
   
   ####################################################################################################    
   #########################        load dataframe       ##############################################
   ####################################################################################################    
-  
-  file_name='ar6_data.Rdata';
-  df=load(file_name);
+  if(!file.exists("ar6_data.Rdata")) source("get_scenario_data.R")
+  df=load("ar6_data.Rdata");
   
   ####################################################################################################    
   #########################   specify column names that uniquely determine scenario   ################
@@ -160,5 +161,16 @@ if(!file.exists("welfares.Rdata"))
 
 
 	
-	
+
+
+
+
+
+
+
+#########  PLOTS ##############
+source("plots.R")
+
+
+
 
