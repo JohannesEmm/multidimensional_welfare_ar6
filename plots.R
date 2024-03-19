@@ -265,9 +265,6 @@ indicators_2 <- indicators_2 %>%
 
 
 ### Scatter Plots
-
-library(gridExtra)
-
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank())
 
@@ -397,10 +394,6 @@ corr_data_2030=corr_data %>% filter( year==2030) %>% select(-year)
 corr_data_2060=corr_data %>% filter( year==2060) %>% select(-year)
 corr_data_2100=corr_data %>% filter( year==2100) %>% select(-year)
 
-
-library(GGally)
-library(gridExtra)
-library(cowplot)
 
 p1<-ggpairs(corr_data_2060, columns = 1:7, title="Year 2060")+ theme_grey(base_size = 8)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))

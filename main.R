@@ -1,6 +1,4 @@
 rm(list = ls())
-
-
 library(tidyverse)
 library(ggpubr)
 library(imputeTS)
@@ -8,14 +6,13 @@ library(data.table)
 library(RColorBrewer)
 library(latex2exp)
 library(gridExtra)
-library(RColorBrewer)
-library(PerformanceAnalytics)
 library(GGally)
+library(PerformanceAnalytics)
+library(cowplot)
+
 
 ### if welfares already exist, just load Rdata file
 ### if welfares exist, indicator.Rdata and weights.Rdata is assumed to exist as well, so this will also load
-
-
 if(!file.exists("welfares.Rdata"))
   {
   ####################################################################################################    
@@ -141,13 +138,7 @@ if(!file.exists("welfares.Rdata"))
   indicators$variable[indicators$variable == "Food Energy Supply"]="Food Supply"
   indicators$variable[indicators$variable == "Land Cover|Forest"]="Forest Cover"
   
-  
-  
   save(indicators, file = "indicators.Rdata") 
-  
-  
-  
-  
   ar6_datadf$identifier<-NULL
   
 }else{
@@ -155,8 +146,6 @@ if(!file.exists("welfares.Rdata"))
   load("welfares.Rdata")
   load("ar6_data.Rdata")
 }
-
-
 
 
 

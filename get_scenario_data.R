@@ -1,4 +1,5 @@
-require(tidyverse)
+require(tidyverse)  
+require(reticulate)
 
 reload_data <- T
 
@@ -8,15 +9,12 @@ varlist <- c("Emissions|NOx", "Emissions|Sulfur", "Emissions|CO2", "Consumption"
 
 #for using python, make sure the path to it is specied using 
 #file.edit(file.path("~", ".Rprofile"))
-#e.g., 
-#Sys.setenv(RETICULATE_PYTHON="C:\\Users\\Emmerling\\AppData\\Local\\Programs\\Python\\Python310\\python.exe")
 Sys.which('python')
 
 
 
 if(!file.exists("ar6_data.Rdata") | reload_data){
   #AR6 data
-  require(reticulate)
   pyam <- import("pyam", convert = FALSE)
   
   #explore the source
